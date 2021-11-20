@@ -1,0 +1,76 @@
+﻿<Window x:Class="ZoDream.LocalizeEditor.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ZoDream.LocalizeEditor"
+        mc:Ignorable="d"
+        Title="Localize Editor" Height="450" Width="800" WindowStartupLocation="CenterScreen">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Skins/MainSkin.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+        <Menu VerticalAlignment="Center" Background="Transparent">
+            <MenuItem Header="文件">
+                <MenuItem Header="新建"/>
+                <MenuItem Header="打开"/>
+                <MenuItem Header="保存"/>
+                <Separator/>
+                <MenuItem Header="导入">
+                    <MenuItem Header="xif"/>
+                    <MenuItem Header="json"/>
+                    <MenuItem Header="resw"/>
+                </MenuItem>
+            </MenuItem>
+            <MenuItem Header="编辑">
+                <MenuItem Header="快速添加"/>
+            </MenuItem>
+            <MenuItem Header="帮助">
+                <MenuItem Header="查看帮助"/>
+                <MenuItem Header="检测更新"/>
+                <MenuItem Header="关于"/>
+            </MenuItem>
+        </Menu>
+        <Grid Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="40"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="40"/>
+                    <ColumnDefinition Width="3*"/>
+                    <ColumnDefinition Width="40"/>
+                    <ColumnDefinition Width="40"/>
+                    <ColumnDefinition Width="40"/>
+                    <ColumnDefinition Width="auto" MinWidth="60"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="搜索" Style="{StaticResource CenterTb}"/>
+                <TextBox MaxLines="1" Grid.Column="1"/>
+                <Button Grid.Column="2" Content="&#xE721;" Style="{StaticResource IconBtn}"/>
+                <Button x:Name="AddBtn" Click="AddBtn_Click" Grid.Column="3" Content="&#xE109;" Style="{StaticResource IconBtn}"/>
+                <TextBlock Text="语言" Grid.Column="4" Style="{StaticResource CenterTb}"/>
+                <ComboBox x:Name="LangTb" IsEditable="True" 
+                          VerticalContentAlignment="Center" Grid.Column="5" 
+                          ItemsSource="{Binding LangItems}" SelectionChanged="LangTb_SelectionChanged"/>
+            </Grid>
+            <DataGrid Grid.Row="1" ItemsSource="{Binding Items,Mode=TwoWay}" AutoGenerateColumns="False" CanUserDeleteRows="True">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="源" Binding="{Binding Source}" MinWidth="160"/>
+                    <DataGridTextColumn Header="翻译" Binding="{Binding Target}" MinWidth="200"/>
+                    <DataGridTextColumn Header="文件路径" Binding="{Binding FileName}" MinWidth="100"/>
+                    <DataGridTextColumn Header="行号" Binding="{Binding LineNumber}"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
+    </Grid>
+</Window>
