@@ -26,9 +26,14 @@
                 <MenuItem Header="保存"/>
                 <Separator/>
                 <MenuItem Header="导入">
-                    <MenuItem Header="xif"/>
-                    <MenuItem Header="json"/>
-                    <MenuItem Header="resw"/>
+                    <MenuItem Header="xlf" Click="ImportBtn_Click"/>
+                    <MenuItem Header="json" Click="ImportBtn_Click"/>
+                    <MenuItem Header="resw" Click="ImportBtn_Click"/>
+                </MenuItem>
+                <MenuItem Header="导出">
+                    <MenuItem Header="xlf" Click="ExportBtn_Click"/>
+                    <MenuItem Header="json" Click="ExportBtn_Click"/>
+                    <MenuItem Header="resw" Click="ExportBtn_Click"/>
                 </MenuItem>
             </MenuItem>
             <MenuItem Header="编辑">
@@ -67,8 +72,7 @@
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="源" Binding="{Binding Source}" MinWidth="160"/>
                     <DataGridTextColumn Header="翻译" Binding="{Binding Target}" MinWidth="200"/>
-                    <DataGridTextColumn Header="文件路径" Binding="{Binding FileName}" MinWidth="100"/>
-                    <DataGridTextColumn Header="行号" Binding="{Binding LineNumber}"/>
+                    <DataGridTextColumn Header="ID" Binding="{Binding Id}" MinWidth="80"/>
                 </DataGrid.Columns>
             </DataGrid>
         </Grid>

@@ -1,12 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 using ZoDream.Shared.ViewModels;
 
 namespace ZoDream.Shared.Models
 {
     public class UnitItem: BindableBase
     {
+
+        private string id;
+
+        public string Id
+        {
+            get => id;
+            set => Set(ref id, value);
+        }
+
+
         private string _source;
 
         public string Source
@@ -23,23 +33,18 @@ namespace ZoDream.Shared.Models
             set => Set(ref _target, value);
         }
 
-        private string _fileName = string.Empty;
+        private List<SourceLocation> _location = new();
 
-        public string FileName
+        public List<SourceLocation> Location
         {
-            get => _fileName;
-            set => Set(ref _fileName, value);
+            get => _location;
+            set => Set(ref _location, value);
         }
 
-
-        private string _lineNumber = string.Empty;
-
-        public string LineNumber
+        public UnitItem()
         {
-            get => _lineNumber;
-            set => Set(ref _lineNumber, value);
-        }
 
+        }
 
         public UnitItem(string source)
         {
@@ -54,33 +59,72 @@ namespace ZoDream.Shared.Models
 
         public UnitItem(string source, string target, string fileName, int line): this(source, target)
         {
-            FileName = fileName;
-            LineNumber = line.ToString();
+            Location.Add(new SourceLocation(fileName, line));
         }
 
         public UnitItem(string source, string target, string fileName, string line) : this(source, target)
         {
-            FileName = fileName;
-            LineNumber = line;
+            Location.Add(new SourceLocation(fileName, line));
         }
 
-        public void AddLine(string line)
+        public void AddLine(string fileName, string line)
         {
-            if (string.IsNullOrEmpty(line))
+            if (string.IsNullOrEmpty(fileName))
             {
                 return;
             }
-            if (string.IsNullOrWhiteSpace(LineNumber))
+            foreach (var item in Location)
             {
-                LineNumber = line;
+                if (item.FileName == fileName)
+                {
+                    item.Add(line);
+                    return;
+                }
+            }
+            Location.Add(new SourceLocation(fileName, line));
+        }
+
+
+        public int IndexOf(SourceLocation e)
+        {
+            return IndexOf(e.FileName);
+        }
+
+        public int IndexOf(string file)
+        {
+            for (int i = 0; i < Location.Count; i++)
+            {
+                if (Location[i].FileName == file)
+                {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
+        public void AddLine(List<SourceLocation> items)
+        {
+            if (items.Count == 0)
+            {
                 return;
             }
-            LineNumber = $"{LineNumber},{line}";
+            foreach (var item in items)
+            {
+                var i = IndexOf(item);
+                if (i < 0)
+                {
+                    Location.Add(item);
+                    continue;
+                }
+                Location[i].Add(item.LineNumber);
+            }
         }
 
         public UnitItem Clone()
         {
-            return new UnitItem(Source, string.Empty, FileName, LineNumber);
+            return new UnitItem(Source, string.Empty);
         }
+
+        
     }
 }

@@ -10,7 +10,7 @@ namespace ZoDream.Tests
         public void TestXlf()
         {
             var reader = new XlfReader();
-            var package = reader.Read("D:\\Documents\\GitHub\\Angular-ZoDream\\src\\locale\\messages.xlf");
+            var package = reader.ReadAsync("D:\\Documents\\GitHub\\Angular-ZoDream\\src\\locale\\messages.xlf").GetAwaiter().GetResult();
             Assert.AreEqual(package.Language.Code, "en-US");
         }
     }

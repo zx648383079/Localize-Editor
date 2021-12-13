@@ -50,5 +50,33 @@ namespace ZoDream.LocalizeEditor
         {
 
         }
+
+        private void ImportBtn_Click(object sender, RoutedEventArgs e)
+        {
+            var picker = new Microsoft.Win32.OpenFileDialog
+            {
+                Filter = "XLFF文件|*.xlf|JSON文件|*.json|RESW文件|*.resw|所有文件|*.*",
+                Title = "选择文件"
+            };
+            if (picker.ShowDialog() != true)
+            {
+                return;
+            }
+            _ = ViewModel.LoadAsync(picker.FileName);
+        }
+
+        private void ExportBtn_Click(object sender, RoutedEventArgs e)
+        {
+            var picker = new Microsoft.Win32.SaveFileDialog
+            {
+                Title = "选择保存路径",
+                Filter = "文件|*.txt|所有文件|*.*",
+            };
+            if (picker.ShowDialog() != true)
+            {
+                return;
+            }
+            _ = ViewModel.SaveAsync(picker.FileName);
+        }
     }
 }

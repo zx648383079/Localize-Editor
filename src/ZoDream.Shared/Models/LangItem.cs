@@ -16,6 +16,11 @@ namespace ZoDream.Shared.Models
             Code = code;
         }
 
+        public LangItem(string code): this(code, code)
+        {
+
+        }
+
         public override string ToString()
         {
             if (Code == Name || string.IsNullOrWhiteSpace(Name))

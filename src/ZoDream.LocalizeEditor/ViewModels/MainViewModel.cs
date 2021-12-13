@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ZoDream.Shared;
 using ZoDream.Shared.Models;
+using ZoDream.Shared.Readers;
 using ZoDream.Shared.Storage;
 using ZoDream.Shared.ViewModels;
 
@@ -75,14 +77,44 @@ namespace ZoDream.LocalizeEditor.ViewModels
             {
                 target.Target = e.Target;
             }
-            if (!string.IsNullOrWhiteSpace(e.FileName) && e.FileName != target.FileName)
+            target.AddLine(e.Location);
+        }
+
+        public async Task SaveAsync(string fileName)
+        {
+            var reader = Render(Path.GetExtension(fileName));
+            if (reader == null)
             {
-                target.FileName = string.Empty;
-                target.LineNumber = "";
-            } else
-            {
-                target.AddLine(e.LineNumber);
+                return;
             }
+            var package = new LanguagePackage(CurrentLanguage);
+            foreach (var item in Items)
+            {
+                package.Items.Add(item);
+            }
+            await reader.WriteAsync(fileName, package);
+        }
+
+        public async Task LoadAsync(string fileName)
+        {
+            var reader = Render(Path.GetExtension(fileName));
+            if (reader == null)
+            {
+                return;
+            }
+            var package = await reader.ReadAsync(fileName);
+            if (package == null)
+            {
+                return;
+            }
+            App.Current.Dispatcher.Invoke(() =>
+            {
+                if (package.TargetLanguage != null)
+                {
+                    ChangeLanguage(package.TargetLanguage.ToString());
+                }
+                Merge(package.Items);
+            });
         }
 
         public void ChangeLanguage(string lang)
@@ -99,6 +131,15 @@ namespace ZoDream.LocalizeEditor.ViewModels
             }
             Save(CurrentLanguage, Items);
             Load(l);
+        }
+
+
+        public void Merge(IEnumerable<UnitItem> items)
+        {
+            foreach (var item in items)
+            {
+                Add(item, true);
+            }
         }
 
         public void Load(LangItem? lang)
@@ -140,6 +181,18 @@ namespace ZoDream.LocalizeEditor.ViewModels
             if (!has)
             {
                 Packages.Add(lang.Code, package);
+            }
+        }
+
+        public IReader? Render(string name)
+        {
+            switch (name.ToLower())
+            {
+                case "xlf":
+                case ".xlf":
+                    return new Shared.Readers.Angular.XlfReader();
+                default:
+                    return null;
             }
         }
     }

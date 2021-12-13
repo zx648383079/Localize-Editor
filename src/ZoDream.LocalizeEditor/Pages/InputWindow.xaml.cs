@@ -33,7 +33,7 @@ namespace ZoDream.LocalizeEditor.Pages
             get { return isOpen; }
             set {
                 isOpen = value;
-                Height = value ? 250 : 100;
+                Height = value ? 300 : 130;
                 MorePanel.Visibility = value ? Visibility.Visible : Visibility.Collapsed;
                 MoreBtn.Content = value ? "\uE935" : "\uE936";
             }
@@ -48,7 +48,10 @@ namespace ZoDream.LocalizeEditor.Pages
 
         private void OkBtn_Click(object sender, RoutedEventArgs e)
         {
-            OnCreate?.Invoke(this, new UnitItem(SourceTb.Text, TargetTb.Text, FileTb.FileName, LineTb.Text));
+            OnCreate?.Invoke(this, new UnitItem(SourceTb.Text, TargetTb.Text, FileTb.FileName, LineTb.Text)
+            {
+                Id = IdTb.Text
+            });
         }
     }
 }
