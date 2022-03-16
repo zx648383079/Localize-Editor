@@ -83,7 +83,7 @@ namespace ZoDream.Shared.Readers.Angular
                     MoveNodeEnd(reader);
                     if (attr1["purpose"] == "location")
                     {
-                        data.Location.Add(GetLocation(reader));
+                        data.AddLine(GetLocation(reader));
                     }
                     continue;
                 }
@@ -224,7 +224,8 @@ namespace ZoDream.Shared.Readers.Angular
             await WriteLineAsync(writer, "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
             await WriteLineAsync(writer, "<xliff version=\"1.2\" xmlns=\"urn: oasis:names: tc:xliff: document:1.2\">");
             var targetLang = package.TargetLanguage == null ? string.Empty : $" target-language=\"{package.TargetLanguage.Code}\"";
-            await WriteLineAsync(writer, 1, $"<file source-language=\"{package.Language.Code}\"{targetLang} datatype=\"plaintext\" original=\"ng2.template\">");
+            var lang = package.Language == null ? string.Empty : $" source-language=\"{package.Language.Code}\"";
+            await WriteLineAsync(writer, 1, $"<file{lang}{targetLang} datatype=\"plaintext\" original=\"ng2.template\">");
             await WriteLineAsync(writer, 2, "<body>");
             foreach (var item in package.Items)
             {
@@ -235,17 +236,17 @@ namespace ZoDream.Shared.Readers.Angular
                 await WriteLineAsync(writer, 3, "<trans-unit", string.IsNullOrWhiteSpace(item.Id) ? string.Empty : $"id=\"{item.Id}\"", "datatype=\"html\">");
                 if (!string.IsNullOrWhiteSpace(item.Source))
                 {
-                    await WriteLineAsync(writer, 4, $"<source>${item.Source}</source>");
+                    await WriteLineAsync(writer, 4, $"<source>{item.Source}</source>");
                 }
                 if (!string.IsNullOrWhiteSpace(item.Target))
                 {
-                    await WriteLineAsync(writer, 4, $"<target>${item.Target}</target>");
+                    await WriteLineAsync(writer, 4, $"<target>{item.Target}</target>");
                 }
                 foreach (var loc in item.Location)
                 {
                     await WriteLineAsync(writer, 4, "<context-group purpose=\"location\">");
                     await WriteLineAsync(writer, 5, $"<context context-type=\"sourcefile\">{loc.FileName}</context>");
-                    await WriteLineAsync(writer, 5, $"<context context-type=\"linenumber\">{string.Join(",", loc.LineNumber)}</context>");
+                    await WriteLineAsync(writer, 5, $"<context context-type=\"linenumber\">{loc.LineNumberFormat}</context>");
                     await WriteLineAsync(writer, 4, $"</context-group>");
                 }
                 await WriteLineAsync(writer, 3, "</trans-unit>");

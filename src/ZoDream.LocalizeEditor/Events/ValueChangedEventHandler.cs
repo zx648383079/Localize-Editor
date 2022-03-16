@@ -7,4 +7,5 @@ using System.Threading.Tasks;
 namespace ZoDream.LocalizeEditor.Events
 {
     public delegate void ValueChangedEventHandler<T>(object sender, T value);
+    public delegate void EmptyEventHandler();
 }

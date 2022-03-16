@@ -21,8 +21,32 @@ namespace ZoDream.LocalizeEditor.ViewModels
             LoadAsync();
         }
 
+        public string SourceFile = string.Empty;
         private IDictionary<string, LanguagePackage> Packages = new Dictionary<string, LanguagePackage>();
         private LangItem? CurrentLanguage;
+        private LangItem? SourceLanguage;
+
+        private string sourceLang = "en";
+
+        public string SourceLang
+        {
+            get => sourceLang;
+            set {
+                Set(ref sourceLang, value);
+                SourceLanguage = LanguageFile.Format(value);
+            }
+        }
+
+        private string targetLang = string.Empty;
+
+        public string TargetLang
+        {
+            get => targetLang;
+            set {
+                Set(ref targetLang, value);
+                ChangeLanguage(value);
+            }
+        }
 
         private string[]? langItems = null;
 
@@ -51,7 +75,8 @@ namespace ZoDream.LocalizeEditor.ViewModels
             for (int i = 0; i < Items.Count; i++)
             {
                 if (e.Source == items[i].Source && 
-                    (string.IsNullOrWhiteSpace(e.Target) || e.Target == items[i].Target))
+                    (string.IsNullOrWhiteSpace(e.Target) || e.Target == items[i].Target) && 
+                    (string.IsNullOrWhiteSpace(e.Id) || e.Id == items[i].Id))
                 {
                     return i;
                 }
@@ -64,7 +89,7 @@ namespace ZoDream.LocalizeEditor.ViewModels
             Add(e, false);
         }
 
-        public void Add(UnitItem e, bool merge)
+        public void Add(UnitItem e, bool merge, bool mergeLocation = true)
         {
             var i = IndexOf(e);
             if (i < 0 || !merge)
@@ -77,46 +102,13 @@ namespace ZoDream.LocalizeEditor.ViewModels
             {
                 target.Target = e.Target;
             }
-            target.AddLine(e.Location);
+            if (!string.IsNullOrWhiteSpace(e.Target) || mergeLocation)
+            {
+                target.AddLine(e.Location);
+            }
         }
 
-        public async Task SaveAsync(string fileName)
-        {
-            var reader = Render(Path.GetExtension(fileName));
-            if (reader == null)
-            {
-                return;
-            }
-            var package = new LanguagePackage(CurrentLanguage);
-            foreach (var item in Items)
-            {
-                package.Items.Add(item);
-            }
-            await reader.WriteAsync(fileName, package);
-        }
-
-        public async Task LoadAsync(string fileName)
-        {
-            var reader = Render(Path.GetExtension(fileName));
-            if (reader == null)
-            {
-                return;
-            }
-            var package = await reader.ReadAsync(fileName);
-            if (package == null)
-            {
-                return;
-            }
-            App.Current.Dispatcher.Invoke(() =>
-            {
-                if (package.TargetLanguage != null)
-                {
-                    ChangeLanguage(package.TargetLanguage.ToString());
-                }
-                Merge(package.Items);
-            });
-        }
-
+        
         public void ChangeLanguage(string lang)
         {
             var l = LanguageFile.Format(lang);
@@ -124,6 +116,7 @@ namespace ZoDream.LocalizeEditor.ViewModels
             {
                 return;
             }
+            targetLang = l == null ? "" : l.Code;
             if (CurrentLanguage == null)
             {
                 CurrentLanguage = l;
@@ -134,11 +127,29 @@ namespace ZoDream.LocalizeEditor.ViewModels
         }
 
 
-        public void Merge(IEnumerable<UnitItem> items)
+        public void Merge(IEnumerable<UnitItem> items, bool mergeLocation = true)
         {
             foreach (var item in items)
             {
-                Add(item, true);
+                if (mergeLocation)
+                {
+                    Add(item, true, mergeLocation);
+                    continue;
+                }
+                if (string.IsNullOrWhiteSpace(item.Target))
+                {
+                    continue;
+                }
+                foreach (var it in Items)
+                {
+                    if (string.IsNullOrWhiteSpace(it.Target) 
+                        && item.Source.Trim() == it.Source.Trim() 
+                        && (string.IsNullOrWhiteSpace(item.Id) || 
+                        string.IsNullOrWhiteSpace(it.Id) || item.Id == it.Id))
+                    {
+                        it.Target = item.Target;
+                    }
+                }
             }
         }
 
@@ -158,6 +169,74 @@ namespace ZoDream.LocalizeEditor.ViewModels
             foreach (var item in package.Items)
             {
                 Items.Add(item);
+            }
+        }
+
+        public void Load()
+        {
+            Packages.Clear();
+            SourceLang = "en";
+            TargetLang = string.Empty;
+            Items.Clear();
+            SourceFile = string.Empty;
+        }
+
+        public async Task LoadAsync(string fileName)
+        {
+            var reader = Render(Path.GetExtension(fileName));
+            if (reader == null)
+            {
+                return;
+            }
+            var package = await reader.ReadAsync(fileName);
+            if (package == null)
+            {
+                return;
+            }
+            if (string.IsNullOrWhiteSpace(SourceFile))
+            {
+                SourceFile = fileName;
+            }
+            if (SourceLanguage == null && package.Language != null)
+            {
+                SourceLanguage = package.Language;
+                sourceLang = package.Language.Code;
+            }
+            App.Current.Dispatcher.Invoke(() =>
+            {
+                if (package.TargetLanguage != null)
+                {
+                    ChangeLanguage(package.TargetLanguage.ToString());
+                }
+                Merge(package.Items, Items.Count == 0);
+            });
+        }
+
+
+
+        public async Task SaveAsync(string fileName)
+        {
+            var reader = Render(Path.GetExtension(fileName));
+            if (reader == null)
+            {
+                return;
+            }
+            if (string.IsNullOrWhiteSpace(SourceFile))
+            {
+                SourceFile = fileName;
+            }
+            var package = new LanguagePackage(SourceLanguage, CurrentLanguage);
+            foreach (var item in Items)
+            {
+                package.Items.Add(item);
+            }
+            await reader.WriteAsync(fileName, package);
+        }
+        public async Task SaveAsync()
+        {
+            if (!string.IsNullOrWhiteSpace(SourceFile))
+            {
+                await SaveAsync(SourceFile);
             }
         }
 

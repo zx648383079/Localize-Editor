@@ -17,45 +17,56 @@
     </Window.Resources>
 
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition/>
-            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="30"/>
         </Grid.RowDefinitions>
-        <Grid>
+        <TextBlock Text="源" Style="{StaticResource CenterTb}"/>
+        <TextBlock Text="翻译" Style="{StaticResource CenterTb}" Grid.Row="1"/>
+        <TextBlock Text="Id" Style="{StaticResource CenterTb}" Grid.Row="2"/>
+
+        <TextBox x:Name="SourceTb" Grid.Column="1" AcceptsReturn="True"/>
+        <TextBox x:Name="TargetTb" Grid.Row="1" Grid.Column="1" AcceptsReturn="True"/>
+        <TextBox x:Name="IdTb" Grid.Row="2" Grid.Column="1" MaxLines="1"/>
+
+
+        <ListView ItemsSource="{Binding LocationItems}"
+            Grid.Row="3" 
+                  Grid.ColumnSpan="2">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="文件路径" DisplayMemberBinding="{Binding FileName}" Width="260"/>
+                    <GridViewColumn Header="行号" DisplayMemberBinding="{Binding LineNumberFormat}" Width="200"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+
+        <Grid Grid.Row="4" Grid.ColumnSpan="2">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="40"/>
+                <ColumnDefinition Width="80"/>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="40"/>
+                <ColumnDefinition Width="80"/>
             </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="30"/>
-            </Grid.RowDefinitions>
-            <TextBlock Text="源" Style="{StaticResource CenterTb}"/>
-            <TextBlock Text="翻译" Style="{StaticResource CenterTb}" Grid.Row="1"/>
-            <TextBlock Text="Id" Style="{StaticResource CenterTb}" Grid.Row="2"/>
+            <Button x:Name="PreviousBtn" Click="PreviousBtn_Click" Content="&#xE0C4;" Style="{StaticResource IconBtn}"/>
+            <Button x:Name="NextBtn" Click="NextBtn_Click" Content="&#xE111;" Grid.Column="2" Style="{StaticResource IconBtn}"/>
 
-            <TextBox x:Name="SourceTb" Grid.Column="1" AcceptsReturn="True"/>
-            <TextBox x:Name="TargetTb" Grid.Row="1" Grid.Column="1" AcceptsReturn="True"/>
-            <TextBox x:Name="IdTb" Grid.Row="2" Grid.Column="1" MaxLines="1"/>
 
-            <Button x:Name="OkBtn" Content="&#xE105;" Grid.Column="2" Style="{StaticResource IconBtn}"/>
+            <Button x:Name="OkBtn" 
+                    Content="&#xE105;"
+                    Grid.Column="1" 
+                    Click="OkBtn_Click"
+                    Style="{StaticResource IconBtn}"/>
+
         </Grid>
-        <Grid x:Name="MorePanel" Grid.Row="1" Height="60">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="40"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <TextBlock Text="路径" Style="{StaticResource CenterTb}"/>
-            <ctl:FileInput x:Name="FileTb" Grid.Column="1"/>
-
-            <TextBlock Text="行号" Grid.Row="1" Style="{StaticResource CenterTb}"/>
-            <TextBox x:Name="LineTb" Grid.Row="1" Grid.Column="1" MaxLines="1"/>
-        </Grid>
+        
+        
+        
     </Grid>
 </Window>

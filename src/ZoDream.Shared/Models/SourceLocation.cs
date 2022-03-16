@@ -10,6 +10,8 @@ namespace ZoDream.Shared.Models
 
         public List<int> LineNumber { get; set; } = new();
 
+        public string LineNumberFormat => string.Join(",", LineNumber);
+
         public SourceLocation()
         {
 

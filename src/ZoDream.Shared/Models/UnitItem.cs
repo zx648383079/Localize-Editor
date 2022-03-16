@@ -85,6 +85,23 @@ namespace ZoDream.Shared.Models
         }
 
 
+        public void AddLine(SourceLocation location)
+        {
+            if (string.IsNullOrEmpty(location.FileName))
+            {
+                return;
+            }
+            foreach (var item in Location)
+            {
+                if (item.FileName == location.FileName)
+                {
+                    item.Add(location.LineNumber);
+                    return;
+                }
+            }
+            Location.Add(location);
+        }
+
         public int IndexOf(SourceLocation e)
         {
             return IndexOf(e.FileName);
@@ -122,7 +139,11 @@ namespace ZoDream.Shared.Models
 
         public UnitItem Clone()
         {
-            return new UnitItem(Source, string.Empty);
+            return new UnitItem(Source, string.Empty)
+            {
+                Id = Id,
+                Location = Location,
+            };
         }
 
         
