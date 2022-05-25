@@ -5,10 +5,10 @@
     <TargetFramework>net6.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
-	<LangVersion>9.0</LangVersion>
+	<LangVersion>10</LangVersion>
 	<Authors>zodream</Authors>
 	<Company>zodream.cn</Company>
-	<Copyright>Copyright © 2021 zodream.cn</Copyright>
+	<Copyright>Copyright © 2022 zodream.cn</Copyright>
   </PropertyGroup>
 
   <ItemGroup>

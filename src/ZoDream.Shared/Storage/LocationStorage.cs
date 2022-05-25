@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ZoDream.Shared.Storage
 {
-    public static class Open
+    public static class LocationStorage
     {
         /// <summary>
         /// 读文本文件
@@ -15,7 +15,7 @@ namespace ZoDream.Shared.Storage
         /// <returns></returns>
         public static async Task<string> ReadAsync(string file)
         {
-            if (!File.Exists(file))
+            if (!System.IO.File.Exists(file))
             {
                 return string.Empty;
             }
@@ -69,12 +69,15 @@ namespace ZoDream.Shared.Storage
 
         public static StreamWriter Writer(string file, bool append)
         {
-            var fs = new FileStream(file, FileMode.OpenOrCreate, FileAccess.ReadWrite);
-            var encoding = TxtEncoder.GetEncoding(fs);
-            if (append)
+            FileStream fs;
+            if (!append)
             {
-                fs.Seek(0, SeekOrigin.End);
+                fs = new FileStream(file, FileMode.Create, FileAccess.ReadWrite);
+                return new StreamWriter(fs, Encoding.UTF8);
             }
+            fs = new FileStream(file, FileMode.OpenOrCreate, FileAccess.ReadWrite);
+            var encoding = TxtEncoder.GetEncoding(fs);
+            fs.Seek(0, SeekOrigin.End);
             return new StreamWriter(fs, encoding);
         }
     }

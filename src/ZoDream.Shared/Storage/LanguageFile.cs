@@ -11,7 +11,7 @@ namespace ZoDream.Shared.Storage
         public static async Task<string[]> LoadAsync(string fileName)
         {
             var items = new List<string>();
-            using (var reader = Open.Reader(fileName))
+            using (var reader = LocationStorage.Reader(fileName))
             {
                 string? line;
                 while (null != (line = await reader.ReadLineAsync()))
