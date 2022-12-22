@@ -56,7 +56,7 @@ namespace ZoDream.LocalizeEditor.ViewModels
             set => Set(ref langItems, value);
         }
 
-        private ObservableCollection<UnitItem> items = new ObservableCollection<UnitItem>();
+        private ObservableCollection<UnitItem> items = new();
 
         public ObservableCollection<UnitItem> Items
         {
@@ -127,7 +127,7 @@ namespace ZoDream.LocalizeEditor.ViewModels
         }
 
 
-        public void Merge(IEnumerable<UnitItem> items, bool mergeLocation = true)
+        public void Merge(IEnumerable<UnitItem> items, bool mergeLocation = true, bool fillEmpty = false)
         {
             foreach (var item in items)
             {
@@ -144,13 +144,83 @@ namespace ZoDream.LocalizeEditor.ViewModels
                 {
                     if (string.IsNullOrWhiteSpace(it.Target) 
                         && item.Source.Trim() == it.Source.Trim() 
-                        && (string.IsNullOrWhiteSpace(item.Id) || 
-                        string.IsNullOrWhiteSpace(it.Id) || item.Id == it.Id))
+                        && ShouldMerge(it, item, true, false))
                     {
                         it.Target = item.Target;
                     }
                 }
             }
+            if (!fillEmpty)
+            {
+                return;
+            }
+            foreach (var it in Items)
+            {
+                if (!string.IsNullOrWhiteSpace(it.Target))
+                {
+                    continue;
+                }
+                
+                var same = GetUnit(items, it, true, true);
+                if (same is not null)
+                {
+                    it.Target = same.Target;
+                }
+            }
+        }
+
+        private UnitItem? GetUnit(IEnumerable<UnitItem> items, UnitItem source, bool notEmpty, bool checkSameFile)
+        {
+            foreach(var item in items)
+            {
+                if (item.Source.Trim() != source.Source.Trim())
+                {
+                    continue;
+                }
+                if (notEmpty && string.IsNullOrWhiteSpace(item.Target))
+                {
+                    continue;
+                }
+                if (checkSameFile && !HasSameFile(source, item))
+                {
+                    continue;
+                }
+                return item;
+            }
+            return null;
+        }
+
+        private bool HasSameFile(UnitItem dist, UnitItem source)
+        {
+            if (dist.Location.Count == 0 || source.Location.Count == 0)
+            {
+                return true;
+            }
+            foreach (var item in dist.Location)
+            {
+                foreach (var it in source.Location)
+                {
+                    if (item.FileName == it.FileName)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        private bool ShouldMerge(UnitItem dist, UnitItem source, bool byId = true, bool byPath = false)
+        {
+            if (byId)
+            {
+                return string.IsNullOrWhiteSpace(source.Id) ||
+                        string.IsNullOrWhiteSpace(dist.Id) || source.Id == dist.Id;
+            }
+            if (byPath)
+            {
+                return HasSameFile(dist, source);
+            }
+            return true;
         }
 
         public void Load(LangItem? lang)
@@ -181,7 +251,7 @@ namespace ZoDream.LocalizeEditor.ViewModels
             SourceFile = string.Empty;
         }
 
-        public async Task LoadAsync(string fileName)
+        public async Task LoadAsync(string fileName, bool fillEmpty = false)
         {
             var reader = Render(Path.GetExtension(fileName));
             if (reader == null)
@@ -197,19 +267,28 @@ namespace ZoDream.LocalizeEditor.ViewModels
             {
                 SourceFile = fileName;
             }
+            App.Current.Dispatcher.Invoke(() =>
+            {
+                LoadAsync(package, fillEmpty);
+            });
+        }
+
+        public void LoadAsync(LanguagePackage? package, bool fillEmpty = false)
+        {
+            if (package == null)
+            {
+                return;
+            }
             if (SourceLanguage == null && package.Language != null)
             {
                 SourceLanguage = package.Language;
                 sourceLang = package.Language.Code;
             }
-            App.Current.Dispatcher.Invoke(() =>
+            if (package.TargetLanguage != null)
             {
-                if (package.TargetLanguage != null)
-                {
-                    ChangeLanguage(package.TargetLanguage.ToString());
-                }
-                Merge(package.Items, Items.Count == 0);
-            });
+                TargetLang = package.TargetLanguage.ToString();
+            }
+            Merge(package.Items, Items.Count == 0, fillEmpty);
         }
 
 

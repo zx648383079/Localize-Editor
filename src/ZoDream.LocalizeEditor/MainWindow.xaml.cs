@@ -149,7 +149,8 @@ namespace ZoDream.LocalizeEditor
             {
                 return;
             }
-            _ = ViewModel.LoadAsync(picker.FileName);
+            var fillEmpty = ViewModel.Items.Count > 0 && MessageBox.Show("是否需要再根据ID更新之后自动补充空白内容？", "提示", MessageBoxButton.YesNo) == MessageBoxResult.Yes;
+            _ = ViewModel.LoadAsync(picker.FileName, fillEmpty);
         }
 
         private void Save()

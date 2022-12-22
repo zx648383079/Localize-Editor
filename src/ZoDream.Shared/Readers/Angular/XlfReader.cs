@@ -75,7 +75,7 @@ namespace ZoDream.Shared.Readers.Angular
                 if (node == "target")
                 {
                     data.Target = GetNodeValue(reader, "target");
-                    break;
+                    continue;
                 }
                 if (node == "context-group")
                 {
