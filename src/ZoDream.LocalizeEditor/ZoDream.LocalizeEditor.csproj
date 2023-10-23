@@ -2,14 +2,21 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFramework>net7.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
-	<LangVersion>10</LangVersion>
+	<LangVersion>11</LangVersion>
 	<Authors>zodream</Authors>
 	<Company>zodream.cn</Company>
-	<Copyright>Copyright © 2022 zodream.cn</Copyright>
+	<Copyright>Copyright © 2023 zodream.cn</Copyright>
+	<ApplicationIcon>localize.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="localize.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\ZoDream.Shared\ZoDream.Shared.csproj" />

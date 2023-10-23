@@ -6,7 +6,7 @@ namespace ZoDream.Shared.Models
 {
     public class SourceLocation
     {
-        public string FileName { get; set; }
+        public string FileName { get; set; } = string.Empty;
 
         public List<int> LineNumber { get; set; } = new();
 

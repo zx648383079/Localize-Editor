@@ -47,6 +47,10 @@ namespace ZoDream.Shared.Readers.Angular
                 }
                 MoveNodeEnd(reader);
             }
+            if (package.TargetLanguage is null)
+            {
+                package.TargetLanguage = package.Language;
+            }
             return package;
         }
 
@@ -223,7 +227,7 @@ namespace ZoDream.Shared.Readers.Angular
             using var writer = LocationStorage.Writer(file);
             await WriteLineAsync(writer, "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
             await WriteLineAsync(writer, "<xliff version=\"1.2\" xmlns=\"urn: oasis:names: tc:xliff: document:1.2\">");
-            var targetLang = package.TargetLanguage == null ? string.Empty : $" target-language=\"{package.TargetLanguage.Code}\"";
+            var targetLang = package.TargetLanguage == null || package.TargetLanguage == package.Language ? string.Empty : $" target-language=\"{package.TargetLanguage.Code}\"";
             var lang = package.Language == null ? string.Empty : $" source-language=\"{package.Language.Code}\"";
             await WriteLineAsync(writer, 1, $"<file{lang}{targetLang} datatype=\"plaintext\" original=\"ng2.template\">");
             await WriteLineAsync(writer, 2, "<body>");

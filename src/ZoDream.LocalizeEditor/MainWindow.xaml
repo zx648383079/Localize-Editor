@@ -5,96 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ZoDream.LocalizeEditor"
         mc:Ignorable="d"
-        Title="Localize Editor" Height="450" Width="800" WindowStartupLocation="CenterScreen">
-    <Window.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/Skins/MainSkin.xaml"/>
-            </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>
-    </Window.Resources>
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="40"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="auto"/>
-        </Grid.RowDefinitions>
-        <Menu VerticalAlignment="Center" Background="Transparent">
-            <MenuItem Header="文件">
-                <MenuItem Header="新建" Click="MenuItem_Click"/>
-                <MenuItem Header="打开" Click="MenuItem_Click"/>
-                <MenuItem Header="保存" Click="MenuItem_Click"/>
-                <Separator/>
-                <MenuItem Header="导入">
-                    <MenuItem Header="xlf" Click="ImportBtn_Click"/>
-                    <MenuItem Header="json" Click="ImportBtn_Click"/>
-                    <MenuItem Header="resw" Click="ImportBtn_Click"/>
-                </MenuItem>
-                <MenuItem Header="导出">
-                    <MenuItem Header="xlf" Click="ExportBtn_Click"/>
-                    <MenuItem Header="json" Click="ExportBtn_Click"/>
-                    <MenuItem Header="resw" Click="ExportBtn_Click"/>
-                </MenuItem>
-                <Separator/>
-                <MenuItem Header="设置" Click="MenuItem_Click"/>
-                <Separator/>
-                <MenuItem Header="退出" Click="MenuItem_Click"/>
-            </MenuItem>
-            <MenuItem Header="编辑">
-                <MenuItem Header="快速添加" Click="MenuItem_Click"/>
-            </MenuItem>
-            <MenuItem Header="帮助">
-                <MenuItem Header="查看帮助"/>
-                <MenuItem Header="检测更新"/>
-                <MenuItem Header="关于"/>
-            </MenuItem>
-        </Menu>
-        <Grid Grid.Row="1">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="40"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="40"/>
-                    <ColumnDefinition Width="3*"/>
-                    <ColumnDefinition Width="40"/>
-                    <ColumnDefinition Width="40"/>
-                    <ColumnDefinition Width="40"/>
-                    <ColumnDefinition Width="auto" MinWidth="60"/>
-                    <ColumnDefinition Width="20"/>
-                    <ColumnDefinition Width="auto" MinWidth="60"/>
-                </Grid.ColumnDefinitions>
-                <TextBlock Text="搜索" Style="{StaticResource CenterTb}"/>
-                <TextBox MaxLines="1" Grid.Column="1"/>
-                <Button Grid.Column="2" Content="&#xE721;" Style="{StaticResource IconBtn}"/>
-                <Button x:Name="AddBtn" Click="AddBtn_Click" Grid.Column="3" Content="&#xE109;" Style="{StaticResource IconBtn}"/>
-                <TextBlock Text="语言" Grid.Column="4" Style="{StaticResource CenterTb}"/>
-                <ComboBox x:Name="LangTb" IsEditable="True"
-                          Text="{Binding SourceLang,Mode=TwoWay}"
-                          VerticalContentAlignment="Center" Grid.Column="5" 
-                          ItemsSource="{Binding LangItems}" />
-                <TextBlock Text="-" Grid.Column="6"/>
-                <ComboBox x:Name="TargetLangTb" IsEditable="True"
-                          Text="{Binding TargetLang,Mode=TwoWay}"
-                          VerticalContentAlignment="Center" Grid.Column="7" 
-                          ItemsSource="{Binding LangItems}"/>
-            </Grid>
-            <ListView x:Name="UnitListBox" Grid.Row="1" ItemsSource="{Binding Items,Mode=TwoWay}" 
-                      MouseDoubleClick="UnitListBox_MouseDoubleClick">
-                <ListView.ContextMenu>
-                    <ContextMenu>
-                        <MenuItem Header="删除"/>
-                    </ContextMenu>
-                </ListView.ContextMenu>
-                <ListView.View>
-                    <GridView>
-                        <GridViewColumn Header="源" DisplayMemberBinding="{Binding Source}" Width="160"/>
-                        <GridViewColumn Header="翻译" DisplayMemberBinding="{Binding Target}" Width="200"/>
-                        <GridViewColumn Header="ID" DisplayMemberBinding="{Binding Id}" Width="80"/>
-                    </GridView>
-                </ListView.View>
-            </ListView>
-        </Grid>
+        Title="Localize Editor" Height="450" Width="800" 
+        WindowStartupLocation="CenterScreen"
+        Unloaded="Window_Unloaded">
+    
+    <Grid Background="{DynamicResource WindowBodyBrush}">
+        <Frame x:Name="InnerFrame" NavigationUIVisibility="Hidden"/>
     </Grid>
+
 </Window>

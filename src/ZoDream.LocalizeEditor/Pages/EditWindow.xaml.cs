@@ -25,41 +25,44 @@ namespace ZoDream.LocalizeEditor.Pages
         public EditWindow()
         {
             InitializeComponent();
-            DataContext = ViewModel;
         }
 
-        public EditViewModel ViewModel = new();
+        public EditViewModel ViewModel => (EditViewModel)DataContext;
 
-        public event EmptyEventHandler OnConfirm;
-        public event EmptyEventHandler OnPrevious;
-        public event EmptyEventHandler OnNext;
+        public event EmptyEventHandler? OnConfirm;
+        public event EmptyEventHandler? OnPrevious;
+        public event EmptyEventHandler? OnNext;
 
-        public UnitItem Data
+        public UnitViewModel Data
         {
             get
             {
-                return new UnitItem(SourceTb.Text, TargetTb.Text)
+                return new UnitViewModel()
                 {
-                    Id = IdTb.Text,
+                    Source = ViewModel.Source,
+                    Target = ViewModel.Target,
+                    Id = ViewModel.Id,
                     Location = ViewModel.LocationItems.ToList()
                 };
             }
             set
             {
-                SourceTb.Text = value.Source;
-                TargetTb.Text = value.Target;
-                IdTb.Text = value.Id;
+                ViewModel.Source = value.Source;
+                ViewModel.Target = value.Target;
+                ViewModel.Id = value.Id;
                 ViewModel.LocationItems.Clear();
                 foreach (var item in value.Location)
                 {
                     ViewModel.LocationItems.Add(item);
                 }
+                ViewModel.SaveEnabled = false;
             }
         }
 
         private void OkBtn_Click(object sender, RoutedEventArgs e)
         {
             OnConfirm?.Invoke();
+            ViewModel.SaveEnabled = false;
         }
 
         private void PreviousBtn_Click(object sender, RoutedEventArgs e)

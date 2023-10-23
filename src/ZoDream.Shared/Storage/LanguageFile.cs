@@ -33,7 +33,7 @@ namespace ZoDream.Shared.Storage
             {
                 return null;
             }
-            var args = line.Trim().Split(new char[] { ' ' }, 2, StringSplitOptions.RemoveEmptyEntries);
+            var args = line!.Trim().Split(new char[] { ' ' }, 2, StringSplitOptions.RemoveEmptyEntries);
             return new LangItem(args[0], args[args.Length - 1]);
         }
     }

@@ -9,14 +9,6 @@
         Title="快捷添加" Height="130" Width="400" WindowStartupLocation="CenterScreen" 
         ResizeMode="NoResize" Topmost="True">
 
-    <Window.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/Skins/MainSkin.xaml"/>
-            </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>
-    </Window.Resources>
-
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition/>

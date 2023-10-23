@@ -10,16 +10,17 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace ZoDream.LocalizeEditor.Pages
 {
     /// <summary>
-    /// SettingWindow.xaml 的交互逻辑
+    /// SettingPage.xaml 的交互逻辑
     /// </summary>
-    public partial class SettingWindow : Window
+    public partial class SettingPage : Page
     {
-        public SettingWindow()
+        public SettingPage()
         {
             InitializeComponent();
         }

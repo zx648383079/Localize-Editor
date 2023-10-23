@@ -1,45 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using ZoDream.Shared.ViewModels;
+﻿using System.Collections.Generic;
 
 namespace ZoDream.Shared.Models
 {
-    public class UnitItem: BindableBase
+    public class UnitItem
     {
 
-        private string id;
-
-        public string Id
-        {
-            get => id;
-            set => Set(ref id, value);
-        }
+        public string Id { get; set; } = string.Empty;
 
 
-        private string _source;
+        public string Source { get; set; } = string.Empty;
 
-        public string Source
-        {
-            get => _source;
-            set => Set(ref _source, value);
-        }
+        public string SourcePlural { get; set; } = string.Empty; // 翻译的文字复数形式
 
-        private string _target = string.Empty;
+        public string Target { get; set; } = string.Empty;
 
-        public string Target
-        {
-            get => _target;
-            set => Set(ref _target, value);
-        }
+        public List<string> TargetPlural { get; set; } = new(); // 翻译的文字复数形式，可以有多种
 
-        private List<SourceLocation> _location = new();
+        public List<SourceLocation> Location { get; set; } = new();
 
-        public List<SourceLocation> Location
-        {
-            get => _location;
-            set => Set(ref _location, value);
-        }
+        public string Comment { get; set; } = string.Empty;
 
         public UnitItem()
         {
@@ -146,6 +125,28 @@ namespace ZoDream.Shared.Models
             };
         }
 
-        
+        public void SetTarget(string[] items)
+        {
+            for (var i = 0; i < items.Length; i++)
+            {
+                if (i < 1)
+                {
+                    Target = items[i];
+                } else
+                {
+                    TargetPlural.Add(items[i]);
+                }
+            }
+        }
+
+        public void AddTarget(string item)
+        {
+            if (string.IsNullOrEmpty(Target))
+            {
+                Target = item;
+                return;
+            }
+            TargetPlural.Add(item);
+        }
     }
 }

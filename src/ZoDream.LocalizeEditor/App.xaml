@@ -4,6 +4,11 @@
              xmlns:local="clr-namespace:ZoDream.LocalizeEditor"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/ZoDream.LocalizeEditor;component/Themes/BaseSkin.xaml"/>
+                <ResourceDictionary Source="/ZoDream.LocalizeEditor;component/Themes/LightTheme.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>
