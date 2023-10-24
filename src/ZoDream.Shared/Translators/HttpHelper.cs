@@ -32,13 +32,18 @@ namespace ZoDream.Shared.Translators
         {
             var bytes = Encoding.UTF8.GetBytes(data);
             var hash = SHA256.Create().ComputeHash(bytes);
-
             var builder = new StringBuilder();
             for (int i = 0; i < hash.Length; i++)
             {
                 builder.Append(hash[i].ToString("x2"));
             }
             return builder.ToString();
+        }
+
+        public static int Timestamp(DateTime time)
+        {
+            var dateTimeStart = TimeZoneInfo.ConvertTimeToUtc(new DateTime(1970, 1, 1, 0, 0, 0, 0));
+            return Convert.ToInt32((time.Ticks - dateTimeStart.Ticks) / 10000000);
         }
         public static async Task<string> RequestAsync(HttpRequestMessage request)
         {

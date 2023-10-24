@@ -113,7 +113,7 @@ namespace ZoDream.Shared.Readers.WordPress
                 var value = args[1].EndsWith("\\n") ? args[1].Substring(0, args[1].Length - 2) : args[1];
                 if (name == PoReader.LanguageTag)
                 {
-                    package.TargetLanguage = LanguageFile.Format(value);
+                    package.TargetLanguage = value;
                     continue;
                 }
                 package.MetaItems.Add(name, value);

@@ -13,9 +13,9 @@ namespace ZoDream.Shared.Models
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
 
-        public LangItem Language { get; set; }
+        public string Language { get; set; } = string.Empty;
 
-        public LangItem? TargetLanguage { get; set; }
+        public string TargetLanguage { get; set; } = string.Empty;
 
         public IList<UnitItem> Items { get; set; } = new List<UnitItem>();
 
@@ -24,25 +24,22 @@ namespace ZoDream.Shared.Models
         /// </summary>
         public Dictionary<string, string> MetaItems { get; set; } = new Dictionary<string, string>();
 
-        public LanguagePackage(LangItem lang, LangItem target)
+        public LanguagePackage(LangItem lang, LangItem target): this(lang.Code, target.Code)
         {
-            Language = lang;
-            TargetLanguage = target;
         }
 
-        public LanguagePackage(LangItem lang)
+        public LanguagePackage(LangItem lang): this(lang.Code)
         {
-            Language = lang;
         }
 
         public LanguagePackage(string lang, string target): this(lang)
         {
-            TargetLanguage = LanguageFile.Format(target);
+            TargetLanguage = target;
         }
 
         public LanguagePackage(string lang)
         {
-            Language = LanguageFile.Format(lang) ?? new LangItem("en");
+            Language = lang;
         }
     }
 }

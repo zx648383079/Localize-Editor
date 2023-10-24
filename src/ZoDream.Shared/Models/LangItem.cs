@@ -6,9 +6,9 @@ namespace ZoDream.Shared.Models
 {
     public class LangItem
     {
-        public string Code { get; set; }
+        public string Code { get; set; } = string.Empty;
 
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
         public LangItem(string code, string name)
         {
@@ -36,11 +36,17 @@ namespace ZoDream.Shared.Models
             {
                 return false;
             }
-            if (obj is LangItem)
+            if (obj is LangItem o)
             {
-                return (obj as LangItem).Code == Code;
+                return o.Code == Code;
             }
             return base.Equals(obj);
+        }
+
+        public override int GetHashCode()
+        {
+            var hashCode = -168117446;
+            return hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Code);
         }
     }
 }

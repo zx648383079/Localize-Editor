@@ -35,7 +35,8 @@ namespace ZoDream.LocalizeEditor.Controls
 
         // Using a DependencyProperty as the backing store for FileName.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty FileNameProperty =
-            DependencyProperty.Register("FileName", typeof(string), typeof(FileInput), new PropertyMetadata(string.Empty));
+            DependencyProperty.Register("FileName", typeof(string), typeof(FileInput), 
+                new FrameworkPropertyMetadata(string.Empty) { BindsTwoWayByDefault = true});
 
 
 

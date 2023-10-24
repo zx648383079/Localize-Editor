@@ -4,6 +4,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:vm="clr-namespace:ZoDream.LocalizeEditor.ViewModels"
+      xmlns:ctl="clr-namespace:ZoDream.LocalizeEditor.Controls"
       xmlns:local="clr-namespace:ZoDream.LocalizeEditor.Pages"
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
@@ -14,6 +15,72 @@
     </Page.DataContext>
 
     <Grid>
-        
+        <Grid.RowDefinitions>
+            <RowDefinition  Height="50"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="auto"/>
+            </Grid.ColumnDefinitions>
+            <ctl:IconButton Icon="&#xE112;" Label="返回" Command="{Binding BackCommand}"/>
+            <StackPanel Orientation="Horizontal" Grid.Column="2">
+                <ctl:IconButton Icon="&#xE10F;" 
+                    Label="首页" Command="{Binding HomeCommand}"/>
+                <ctl:IconButton Icon="&#xE115;" 
+                    Label="设置"/>
+            </StackPanel>
+        </Grid>
+
+        <ScrollViewer Grid.Row="1">
+            <StackPanel Margin="10,20">
+                <TextBlock Text="系统设置" Style="{DynamicResource TitleTextBlockStyle}" 
+                           Margin="0,20,0,10"/>
+                <ctl:SettingInputGroup Icon="&#xE167;" Header="翻译管理" Meta="设置翻译插件">
+                    <Grid Margin="10,10,10,20">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" MinWidth="60"/>
+                            <ColumnDefinition Width="5*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="插件" Style="{StaticResource InputHeaderStyle}"/>
+                        <ComboBox ItemsSource="{Binding TranslatorItems}" 
+                                  DisplayMemberPath="Label"
+                                  VerticalContentAlignment="Center"
+                                  SelectedItem="{Binding Translator}" 
+                                  Grid.Column="1" Height="32"/>
+
+                        <ItemsControl ItemsSource="{Binding InputItems}" Grid.Row="1" Grid.ColumnSpan="2">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" MinWidth="60"/>
+                                            <ColumnDefinition Width="5*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding Label}"  Style="{StaticResource InputHeaderStyle}"/>
+                                        <TextBox Text="{Binding Value}" Grid.Column="1" Style="{StaticResource InputEntryStyle}"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Grid>
+                </ctl:SettingInputGroup>
+                <ctl:SettingInputGroup Icon="&#xE129;" Header="关于" Meta="程序作者信息">
+                    <StackPanel Margin="10,20">
+                        <TextBlock Text="ZoDream Localize Editor" FontSize="30"/>
+                        <TextBlock Text="{Binding Version}"/>
+                        <ctl:HyperlinkButton Content="Copyright © 2023 zodream.cn" 
+                                 NavigateUri="https://github.com/zx648383079/Localize-Editor"
+                                 HorizontalAlignment="Left"/>
+                    </StackPanel>
+                </ctl:SettingInputGroup>
+            </StackPanel>
+        </ScrollViewer>
     </Grid>
 </Page>

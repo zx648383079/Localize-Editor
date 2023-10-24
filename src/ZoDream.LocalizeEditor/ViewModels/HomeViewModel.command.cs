@@ -1,20 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Input;
 using ZoDream.LocalizeEditor.Pages;
-using ZoDream.Shared;
-using ZoDream.Shared.Models;
-using ZoDream.Shared.Readers;
 using ZoDream.Shared.Routes;
-using ZoDream.Shared.Storage;
-using ZoDream.Shared.ViewModel;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace ZoDream.LocalizeEditor.ViewModels
 {
@@ -34,6 +21,29 @@ namespace ZoDream.LocalizeEditor.ViewModels
         public ICommand SettingCommand { get; private set; }
 
         public ICommand ExitCommand { get; private set; }
+
+        public ICommand ChangeCommand { get; private set; }
+
+        public ICommand SearchCommand {  get; private set; }
+        public ICommand DialogConfirmCommand { get; private set; }
+
+        private void TapSearch(object? _)
+        {
+            FilteredItems.Refresh();
+        }
+
+        private void TapChange(object? _)
+        {
+            DialogVisible = true;
+        }
+
+        private void TapDialogConfirm(object? _)
+        {
+            
+            DialogVisible = false;
+            TargetLang = DialogTargetLang;
+            Load(App.ViewModel.LangDictionary.RepairCode(DialogTargetLang));
+        }
 
         private void TapExit(object? _)
         {
@@ -57,55 +67,63 @@ namespace ZoDream.LocalizeEditor.ViewModels
 
         private void TapEdit(object? arg)
         {
-            var i = UnitSelectedIndex;
-            if (i < 0)
+            var item = UnitSelectedItem;
+            if (item is null)
             {
                 return;
             }
-            var page = new EditWindow
-            {
-                Data = Items[i]
-            };
-            page.OnConfirm += () => {
-                var res = page.Data;
+            var i = Items.IndexOf(item);
+            var page = new EditWindow();
+            var model = page.ViewModel;
+            SyncEdit(model, i);
+            model.OnConfirm += () => {
+                var res = model.Data;
                 Items[i].Id = res.Id;
                 Items[i].Source = res.Source;
                 Items[i].Target = res.Target;
                 Items[i].Location = res.Location;
             };
-            page.OnPrevious += () => {
+            model.OnPrevious += () => {
                 if (i < 1)
                 {
                     return;
                 }
-                i--;
-                page.Data = Items[i];
-                UnitSelectedIndex = i;
+                SyncEdit(model, --i);
             };
-            page.OnNext += () => {
+            model.OnNext += () => {
                 if (i >= Items.Count - 1)
                 {
                     return;
                 }
-                i++;
-                page.Data = Items[i];
-                UnitSelectedIndex = i;
+                SyncEdit(model, ++i);
             };
             page.Show();
         }
+
+        private void SyncEdit(EditViewModel model, int i)
+        {
+            if (UnitSelectedItem != Items[i])
+            {
+                UnitSelectedItem = Items[i];
+            }
+            model.Data = Items[i];
+            model.PreviousEnabled = i > 0;
+            model.NextEnabled = i < Items.Count - 1;
+        }
+
         private void TapRemove(object? _)
         {
-            var i = UnitSelectedIndex;
-            if (i < 0)
+            var item = UnitSelectedItem;
+            if (item is null)
             {
                 return;
             }
-            Items.RemoveAt(i);
+            Items.Remove(item);
         }
 
         private void TapNew(object? _)
         {
-
+            TapChange(_);
         }
 
         private void TapOpen(object? _)

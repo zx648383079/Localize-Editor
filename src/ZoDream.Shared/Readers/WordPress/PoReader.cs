@@ -10,8 +10,6 @@ namespace ZoDream.Shared.Readers.WordPress
     {
         public const string LanguageTag = "Language";
 
-        private string? LastLine;
-        private bool MoveNextStop;
         public Task<LanguagePackage> ReadAsync(string file)
         {
             return Task.Factory.StartNew(() => 
@@ -22,22 +20,11 @@ namespace ZoDream.Shared.Readers.WordPress
 
         public LanguagePackage ReadFile(string file)
         {
-            using var reader = LocationStorage.Reader(file);
+            using var reader = new LineReader(file);
             return ReadStream(reader);
         }
 
-        private string? ReadLine(StreamReader reader)
-        {
-            if (MoveNextStop)
-            {
-                MoveNextStop = false;
-                return LastLine;
-            }
-            LastLine = reader.ReadLine();
-            return LastLine;
-        }
-
-        public LanguagePackage ReadStream(StreamReader reader)
+        protected LanguagePackage ReadStream(LineReader reader)
         {
             var package = new LanguagePackage("en");
             ReadHeader(package, reader);
@@ -53,7 +40,7 @@ namespace ZoDream.Shared.Readers.WordPress
             return package;
         }
 
-        private void ReadHeader(LanguagePackage package, StreamReader reader)
+        private void ReadHeader(LanguagePackage package, LineReader reader)
         {
             var item = ReadItem(reader);
             if (item is null)
@@ -82,7 +69,7 @@ namespace ZoDream.Shared.Readers.WordPress
                 var value = args[1].EndsWith("\\n") ? args[1].Substring(0, args[1].Length - 2) : args[1];
                 if (name == LanguageTag)
                 {
-                    package.TargetLanguage = LanguageFile.Format(value);
+                    package.TargetLanguage = value;
                     continue;
                 }
                 package.MetaItems.Add(name, value);
@@ -98,13 +85,13 @@ namespace ZoDream.Shared.Readers.WordPress
             return line;
         }
 
-        private UnitItem? ReadItem(StreamReader reader)
+        private UnitItem? ReadItem(LineReader reader)
         {
             var item = new UnitItem();
             var found = false;
             while (true)
             {
-                var line = ReadLine(reader);
+                var line = reader.ReadLine();
                 if (found && string.IsNullOrWhiteSpace(line))
                 {
                     break;
@@ -128,16 +115,7 @@ namespace ZoDream.Shared.Readers.WordPress
                         // 不支持
                         break;
                     case "#:":
-                        var next = args[1].Trim();
-                        var i = next.LastIndexOf(':');
-                        if (i < 0)
-                        {
-                            item.AddLine(next, string.Empty);
-                        }
-                        else
-                        {
-                            item.AddLine(next.Substring(0, i), next.Substring(i + 1));
-                        }
+                        ReadFileLine(item, args[1]);
                         break;
                     case "msgid_plural":
                         item.SourcePlural = ReadIfManyLine(reader, args[1].Trim());
@@ -179,25 +157,42 @@ namespace ZoDream.Shared.Readers.WordPress
             return item;
         }
 
-        private string ReadIfManyLine(StreamReader reader, string val)
+        /// <summary>
+        /// 读取文件的地址和位置
+        /// </summary>
+        /// <param name="item"></param>
+        /// <param name="line"></param>
+        private void ReadFileLine(UnitItem item, string line)
+        {
+            foreach (var it in line.Split(','))
+            {
+                if (string.IsNullOrWhiteSpace(it))
+                {
+                    continue;
+                }
+                var args = it.Split(':');
+                item.AddLine(args[0].Trim(), args.Length > 1 ? args[1].Trim() : "-1");
+            }
+        }
+
+        private string ReadIfManyLine(LineReader reader, string val)
         {
             val = ReadString(val);
             if (!string.IsNullOrEmpty(val))
             {
                 return val;
             }
-            long begin;
             var sb = new StringBuilder();
             while (true)
             {
-                var line = ReadLine(reader);
+                var line = reader.ReadLine();
                 if (line == null)
                 {
                     break;
                 }
                 if (line.Length < 1 || line[0] != '"')
                 {
-                    MoveNextStop = true;
+                    reader.Back();
                     break;
                 }
                 sb.Append(ReadString(line).Replace("\\n", "\n"));
@@ -251,7 +246,7 @@ namespace ZoDream.Shared.Readers.WordPress
             {
                 WriteMeta(writer, item.Key, item.Value);
             }
-            WriteMeta(writer, LanguageTag, package.TargetLanguage!.Code);
+            WriteMeta(writer, LanguageTag, package.TargetLanguage);
             writer.WriteLine();
         }
         private void WriteString(StreamWriter writer, string tag, string content)
@@ -302,7 +297,21 @@ namespace ZoDream.Shared.Readers.WordPress
             WriteComment(writer, item.Comment);
             foreach (var line in item.Location)
             {
-                writer.WriteLine($"#: {line.FileName}:{line.LineNumberFormat}");
+                var sb = new StringBuilder();
+                foreach (var no in line.LineNumber)
+                {
+                    if (sb.Length > 0)
+                    {
+                        sb.Append(", ");
+                    }
+                    if (no < 0)
+                    {
+                        writer.WriteLine(line.FileName);
+                        continue;
+                    }
+                    writer.WriteLine($"{line.FileName}:{no}");
+                }
+                writer.WriteLine($"#: {sb}");
             }
             WriteString(writer, "msgid", item.Source);
             if (string.IsNullOrEmpty(item.SourcePlural))

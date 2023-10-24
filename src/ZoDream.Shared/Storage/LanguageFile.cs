@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using ZoDream.Shared.Models;
 
@@ -7,34 +8,31 @@ namespace ZoDream.Shared.Storage
 {
     public static class LanguageFile
     {
-
-        public static async Task<string[]> LoadAsync(string fileName)
+        public static async Task<LanguageDictionary> LoadAsync(string fileName)
         {
-            var items = new List<string>();
-            using (var reader = LocationStorage.Reader(fileName))
+            var data = new LanguageDictionary();
+            using var reader = LocationStorage.Reader(fileName);
+            while (true)
             {
-                string? line;
-                while (null != (line = await reader.ReadLineAsync()))
+                var line = await reader.ReadLineAsync();
+                if (line == null)
                 {
-                    var item = Format(line);
-                    if (item == null)
-                    {
-                        continue;
-                    }
-                    items.Add(item.ToString());
+                    break;
+                }
+                if (string.IsNullOrWhiteSpace(line))
+                {
+                    continue;
+                }
+                var args = line.Trim().Split(new char[] { ' ' }, 2, StringSplitOptions.RemoveEmptyEntries);
+                if (args.Length < 2) 
+                {
+                    data.Push(args[0]);
+                } else
+                {
+                    data.Push(args[0], args[1]);
                 }
             }
-            return items.ToArray();
-        }
-
-        public static LangItem? Format(string? line)
-        {
-            if (string.IsNullOrWhiteSpace(line))
-            {
-                return null;
-            }
-            var args = line!.Trim().Split(new char[] { ' ' }, 2, StringSplitOptions.RemoveEmptyEntries);
-            return new LangItem(args[0], args[args.Length - 1]);
+            return data;
         }
     }
 }

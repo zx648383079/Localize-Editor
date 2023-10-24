@@ -31,11 +31,11 @@ namespace ZoDream.Shared.Readers.Angular
                     var data = GetAttribute(reader);
                     if (data.ContainsKey("source-language"))
                     {
-                        package.Language = new LangItem(data["source-language"]);
+                        package.Language = data["source-language"];
                     }
                     if (data.ContainsKey("target-language"))
                     {
-                        package.TargetLanguage = new LangItem(data["target-language"]);
+                        package.TargetLanguage = data["target-language"];
                     }
                     MoveNodeEnd(reader);
                     continue;
@@ -227,8 +227,8 @@ namespace ZoDream.Shared.Readers.Angular
             using var writer = LocationStorage.Writer(file);
             await WriteLineAsync(writer, "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
             await WriteLineAsync(writer, "<xliff version=\"1.2\" xmlns=\"urn: oasis:names: tc:xliff: document:1.2\">");
-            var targetLang = package.TargetLanguage == null || package.TargetLanguage == package.Language ? string.Empty : $" target-language=\"{package.TargetLanguage.Code}\"";
-            var lang = package.Language == null ? string.Empty : $" source-language=\"{package.Language.Code}\"";
+            var targetLang = package.TargetLanguage == null || package.TargetLanguage == package.Language ? string.Empty : $" target-language=\"{package.TargetLanguage}\"";
+            var lang = package.Language == null ? string.Empty : $" source-language=\"{package.Language}\"";
             await WriteLineAsync(writer, 1, $"<file{lang}{targetLang} datatype=\"plaintext\" original=\"ng2.template\">");
             await WriteLineAsync(writer, 2, "<body>");
             foreach (var item in package.Items)

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using ZoDream.Shared.Routes;
@@ -16,6 +17,7 @@ namespace ZoDream.LocalizeEditor.ViewModels
         {
             OpenCommand = new RelayCommand(TapOpen);
             CreateCommand = new RelayCommand(TapCreate);
+            DialogConfirmCommand = new RelayCommand(TapDialogConfirm);
             Version = App.ViewModel.Version;
         }
 
@@ -33,16 +35,77 @@ namespace ZoDream.LocalizeEditor.ViewModels
             set => Set(ref tip, value);
         }
 
+
+        private bool dialogVisible;
+
+        public bool DialogVisible {
+            get => dialogVisible;
+            set {
+                if (value && LangItems.Length == 0)
+                {
+                    LangItems = App.ViewModel.LangDictionary.ToStringArray();
+                }
+                Set(ref dialogVisible, value);
+            }
+        }
+
+
+        private string sourceLang = string.Empty;
+
+        public string SourceLang {
+            get => sourceLang;
+            set => Set(ref sourceLang, value);
+        }
+
+        private string targetLang = string.Empty;
+
+        public string TargetLang {
+            get => targetLang;
+            set => Set(ref targetLang, value);
+        }
+
+        private string[] langItems = Array.Empty<string>();
+
+        public string[] LangItems {
+            get => langItems;
+            set => Set(ref langItems, value);
+        }
+
         public ICommand OpenCommand { get; private set; }
 
         public ICommand CreateCommand { get; private set; }
 
+        public ICommand DialogConfirmCommand { get; private set; }
+
+
+        private async void TapDialogConfirm(object? _)
+        {
+            var sLang = App.ViewModel.LangDictionary.RepairCode(SourceLang);
+            var tLang = App.ViewModel.LangDictionary.RepairCode(TargetLang);
+            if (string.IsNullOrEmpty(sLang) || string.IsNullOrEmpty(tLang)) 
+            {
+                MessageBox.Show("请选择语言");
+                return;
+            }
+            var package = App.ViewModel.CurrentPackage;
+            if (package is null)
+            {
+                await App.ViewModel.CreatePackageAsync(sLang, tLang);
+            } else
+            {
+                App.ViewModel.Packages.Clear();
+                package.Language = sLang;
+                package.TargetLanguage = tLang;
+                App.ViewModel.CurrentPackage = package;
+            }
+            DialogVisible = false;
+            ShellManager.GoToAsync("home");
+        }
 
         private async void TapOpen(object? _)
         {
             var open = new Microsoft.Win32.OpenFileDialog
             {
-                Multiselect = true,
                 Filter = AppViewModel.FileFilters,
                 Title = "选择文件"
             };
@@ -50,14 +113,29 @@ namespace ZoDream.LocalizeEditor.ViewModels
             {
                 return;
             }
-            await App.ViewModel.OpenPackageAsync(open.FileName);
+            var res = await App.ViewModel.OpenPackageAsync(open.FileName);
+            if (!res)
+            {
+                MessageBox.Show("文件不支持");
+                return;
+            }
+            if (string.IsNullOrWhiteSpace(App.ViewModel.PackageLanguage))
+            {
+                SourceLang = App.ViewModel.LangDictionary.CodeToString(App.ViewModel.CurrentPackage!.Language);
+                if (string.IsNullOrEmpty(SourceLang))
+                {
+                    SourceLang = App.ViewModel.LangDictionary.CodeToString("en");
+                }
+                DialogVisible = true;
+                return;
+            }
             ShellManager.GoToAsync("home");
         }
 
-        private async void TapCreate(object? _)
+        private void TapCreate(object? _)
         {
-            await App.ViewModel.CreatePackageAsync();
-            ShellManager.GoToAsync("home");
+            SourceLang = App.ViewModel.LangDictionary.CodeToString("en");
+            DialogVisible = true;
         }
     }
 }

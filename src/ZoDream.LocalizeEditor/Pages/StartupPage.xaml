@@ -38,5 +38,30 @@
             <ctl:LargeIconButton Icon="&#xE710;" Header="创建语言包" Meta="创建新的语言包文件" 
                                  Command="{Binding CreateCommand}"/>
         </StackPanel>
+
+        <ctl:ContentDialog Title="选择语言" SubTitle="选择源语言和目标语言"
+                           IsOpen="{Binding DialogVisible}"
+                            PrimaryCommand="{Binding DialogConfirmCommand}"
+                           Grid.ColumnSpan="2">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="32"/>
+                    <RowDefinition Height="32"/>
+                    <RowDefinition Height="32"/>
+                    <RowDefinition Height="32"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <TextBlock Text="源语言" VerticalAlignment="Center"/>
+                <ComboBox SelectedItem="{Binding SourceLang}"
+                          ItemsSource="{Binding LangItems}" 
+                          Grid.Row="1"
+                          VerticalContentAlignment="Center"/>
+                <TextBlock Text="目标语言" Grid.Row="2" VerticalAlignment="Center"/>
+                <ComboBox SelectedItem="{Binding TargetLang}"
+                          ItemsSource="{Binding LangItems}" 
+                          Grid.Row="3"
+                          VerticalContentAlignment="Center"/>
+            </Grid>
+        </ctl:ContentDialog>
     </Grid>
 </Page>

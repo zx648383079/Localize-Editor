@@ -5,9 +5,15 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ZoDream.LocalizeEditor.Pages"
         xmlns:ctl="clr-namespace:ZoDream.LocalizeEditor.Controls"
+        xmlns:vm="clr-namespace:ZoDream.LocalizeEditor.ViewModels"
         mc:Ignorable="d"
-        Title="快捷添加" Height="130" Width="400" WindowStartupLocation="CenterScreen" 
+        Title="快捷添加" Height="{Binding WindowHeight}" Width="400" WindowStartupLocation="CenterScreen" 
         ResizeMode="NoResize" Topmost="True">
+
+    <Window.DataContext>
+        <vm:QuicklyAddViewModel/>
+    </Window.DataContext>
+    
 
     <Grid>
         <Grid.RowDefinitions>
@@ -29,14 +35,19 @@
             <TextBlock Text="翻译" Style="{StaticResource CenterTb}" Grid.Row="1"/>
             <TextBlock Text="Id" Style="{StaticResource CenterTb}" Grid.Row="2"/>
 
-            <TextBox x:Name="SourceTb" Grid.Column="1" AcceptsReturn="True"/>
-            <TextBox x:Name="TargetTb" Grid.Row="1" Grid.Column="1" AcceptsReturn="True"/>
-            <TextBox x:Name="IdTb" Grid.Row="2" Grid.Column="1" MaxLines="1"/>
+            <TextBox Text="{Binding Source}" Grid.Column="1" AcceptsReturn="True"/>
+            <TextBox Text="{Binding Target}" Grid.Row="1" Grid.Column="1" AcceptsReturn="True"/>
+            <TextBox Text="{Binding Id}" Grid.Row="2" Grid.Column="1" MaxLines="1"/>
 
-            <Button x:Name="OkBtn" Click="OkBtn_Click" Content="&#xE105;" Grid.Column="2" Style="{StaticResource IconBtn}"/>
-            <Button x:Name="MoreBtn" Click="MoreBtn_Click" Content="&#xE936;" Grid.Row="2" Grid.Column="2" Style="{StaticResource TranIconBtn}"/>
+            <Button Command="{Binding SaveCommand}" IsEnabled="{Binding SaveEnabled}" Content="&#xE105;" Grid.Column="2" Style="{StaticResource IconBtn}"/>
+            <Button Command="{Binding ToggleCommand}" Content="{Binding MoreIcon}" Grid.Row="2" Grid.Column="2" Style="{StaticResource TranIconBtn}"/>
+
+            <Button Content="&#xE164;" ToolTip="翻译" 
+                Command="{Binding TranslateCommand}"
+                    Grid.Row="1" Grid.Column="2"
+                Style="{StaticResource IconBtn}" Height="40"/>
         </Grid>
-        <Grid x:Name="MorePanel" Grid.Row="1" Height="60" Visibility="Collapsed">
+        <Grid Grid.Row="1" Height="60" Visibility="{Binding IsFully, Converter={StaticResource ToggleCvt}}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="40"/>
                 <ColumnDefinition Width="*"/>
@@ -46,10 +57,10 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <TextBlock Text="路径" Style="{StaticResource CenterTb}"/>
-            <ctl:FileInput x:Name="FileTb" Grid.Column="1"/>
+            <ctl:FileInput FileName="{Binding FileName}" Grid.Column="1"/>
             
             <TextBlock Text="行号" Grid.Row="1" Style="{StaticResource CenterTb}"/>
-            <TextBox x:Name="LineTb" Grid.Row="1" Grid.Column="1" MaxLines="1"/>
+            <TextBox Text="{Binding LineNo}" Grid.Row="1" Grid.Column="1" MaxLines="1"/>
         </Grid>
     </Grid>
 </Window>

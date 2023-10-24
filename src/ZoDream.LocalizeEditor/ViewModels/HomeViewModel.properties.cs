@@ -1,33 +1,40 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ZoDream.Shared;
+using System.ComponentModel;
+using System.Windows.Data;
 using ZoDream.Shared.Models;
-using ZoDream.Shared.Readers;
-using ZoDream.Shared.Storage;
-using ZoDream.Shared.ViewModel;
 
 namespace ZoDream.LocalizeEditor.ViewModels
 {
     public partial class HomeViewModel
     {
 
+        private bool dialogVisible;
 
-        private LangItem? CurrentLanguage;
-        private LangItem? SourceLanguage;
+        public bool DialogVisible {
+            get => dialogVisible;
+            set {
+                if (value && LangItems.Length == 0)
+                {
+                    LangItems = App.ViewModel.LangDictionary.ToStringArray();
+                }
+                Set(ref dialogVisible, value);
+                if (value)
+                {
+                    DialogTargetLang = TargetLang;
+                }
+            }
+        }
 
-        private string sourceLang = "en";
+        private string sourceLang = string.Empty;
 
         public string SourceLang
         {
             get => sourceLang;
             set {
                 Set(ref sourceLang, value);
-                SourceLanguage = LanguageFile.Format(value);
+                OnPropertyChanged(nameof(SourceHeader));
             }
         }
 
@@ -38,8 +45,18 @@ namespace ZoDream.LocalizeEditor.ViewModels
             get => targetLang;
             set {
                 Set(ref targetLang, value);
-                ChangeLanguage(value);
+                OnPropertyChanged(nameof(TargetHeader));
             }
+        }
+
+        public string SourceHeader => $"源: {SourceLang}";
+        public string TargetHeader => $"翻译: {TargetLang}";
+
+        private string dialogTargetLang = string.Empty;
+
+        public string DialogTargetLang {
+            get => dialogTargetLang;
+            set => Set(ref dialogTargetLang, value);
         }
 
         private string[] langItems = Array.Empty<string>();
@@ -50,23 +67,26 @@ namespace ZoDream.LocalizeEditor.ViewModels
             set => Set(ref langItems, value);
         }
 
-        private int unitSelectedIndex = -1;
+        private UnitViewModel? unitSelectedItem;
 
-        public int UnitSelectedIndex 
+        public UnitViewModel? UnitSelectedItem 
         {
-            get => unitSelectedIndex;
-            set => Set(ref unitSelectedIndex, value);
+            get => unitSelectedItem;
+            set => Set(ref unitSelectedItem, value);
         }
 
 
+        private string keywords = string.Empty;
 
-        private ObservableCollection<UnitViewModel> items = new();
-
-        public ObservableCollection<UnitViewModel> Items
+        public string Keywords 
         {
-            get => items;
-            set => Set(ref items, value);
+            get => keywords;
+            set => Set(ref keywords, value);
         }
+
+        public ICollectionView FilteredItems { get; set; }
+
+        private ObservableCollection<UnitViewModel> Items = new();
 
     }
 }

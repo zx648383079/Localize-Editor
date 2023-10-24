@@ -6,15 +6,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Data;
 using ZoDream.Shared;
 using ZoDream.Shared.Models;
 using ZoDream.Shared.Readers;
+using ZoDream.Shared.Routes;
 using ZoDream.Shared.Storage;
 using ZoDream.Shared.ViewModel;
 
 namespace ZoDream.LocalizeEditor.ViewModels
 {
-    public partial class HomeViewModel : BindableBase
+    public partial class HomeViewModel : BindableBase, IQueryAttributable, IExitAttributable
     {
 
         public HomeViewModel()
@@ -30,26 +32,33 @@ namespace ZoDream.LocalizeEditor.ViewModels
             ImportCommand = new RelayCommand(TapImport);
             ExportCommand = new RelayCommand(TapExport);
             ExitCommand = new RelayCommand(TapExit);
-            if (!AppViewModel.IsDesignMode)
-            {
-                LoadAsync();
-            }
+            ChangeCommand = new RelayCommand(TapChange);
+            SearchCommand = new RelayCommand(TapSearch);
+            DialogConfirmCommand = new RelayCommand(TapDialogConfirm);
+
+            FilteredItems = CollectionViewSource.GetDefaultView(Items);
+            FilteredItems.Filter = item => {
+                if (item is not UnitViewModel o)
+                {
+                    return false;
+                }
+                if (string.IsNullOrWhiteSpace(Keywords))
+                {
+                    return true;
+                }
+                return o.Source.Contains(Keywords) || o.Target.Contains(Keywords);
+            };
             LoadAsync(App.ViewModel.CurrentPackage, false);
         }
 
-
-        public async void LoadAsync()
-        {
-            LangItems = await LanguageFile.LoadAsync("languages.txt");
-        }
 
         public int IndexOf(UnitItem e)
         {
             for (int i = 0; i < Items.Count; i++)
             {
-                if (e.Source == items[i].Source && 
-                    (string.IsNullOrWhiteSpace(e.Target) || e.Target == items[i].Target) && 
-                    (string.IsNullOrWhiteSpace(e.Id) || e.Id == items[i].Id))
+                if (e.Source == Items[i].Source && 
+                    (string.IsNullOrWhiteSpace(e.Target) || e.Target == Items[i].Target) && 
+                    (string.IsNullOrWhiteSpace(e.Id) || e.Id == Items[i].Id))
                 {
                     return i;
                 }
@@ -70,7 +79,7 @@ namespace ZoDream.LocalizeEditor.ViewModels
                 Items.Add(new UnitViewModel(e));
                 return;
             }
-            var target = items[i];
+            var target = Items[i];
             if (string.IsNullOrWhiteSpace(e.Target))
             {
                 target.Target = e.Target;
@@ -84,19 +93,14 @@ namespace ZoDream.LocalizeEditor.ViewModels
         
         public void ChangeLanguage(string lang)
         {
-            var l = LanguageFile.Format(lang);
-            if (l == CurrentLanguage)
+            var lastLang = App.ViewModel.PackageLanguage;
+            if (lang == lastLang)
             {
                 return;
             }
-            targetLang = l == null ? "" : l.Code;
-            if (CurrentLanguage == null)
-            {
-                CurrentLanguage = l;
-                return;
-            }
-            Save(CurrentLanguage, Items);
-            Load(l);
+            targetLang = lang;
+            Save(lastLang, Items);
+            Load(lang);
         }
 
 
@@ -197,11 +201,10 @@ namespace ZoDream.LocalizeEditor.ViewModels
             return true;
         }
 
-        public void Load(LangItem? lang)
+        public void Load(string lang)
         {
-            CurrentLanguage = lang;
-            App.ViewModel.PackageLanguage = lang?.Code ?? "new";
-            if (lang is null || !App.ViewModel.Packages.TryGetValue(lang.Code, out var package))
+            App.ViewModel.PackageLanguage = lang;
+            if (lang is null || !App.ViewModel.Packages.TryGetValue(lang, out var package))
             {
                 for (int i = 0; i < Items.Count; i++)
                 {
@@ -226,12 +229,7 @@ namespace ZoDream.LocalizeEditor.ViewModels
 
         public async Task LoadAsync(string fileName, bool fillEmpty = false)
         {
-            var reader = AppViewModel.Reader(Path.GetExtension(fileName));
-            if (reader == null)
-            {
-                return;
-            }
-            var package = await reader.ReadAsync(fileName);
+            var package = await App.ViewModel.LoadPackageAsync(fileName);
             if (package == null)
             {
                 return;
@@ -253,15 +251,13 @@ namespace ZoDream.LocalizeEditor.ViewModels
             {
                 return;
             }
-            if (SourceLanguage == null && package.Language != null)
+            if (string.IsNullOrEmpty(SourceLang) && !string.IsNullOrEmpty(package.Language))
             {
-                SourceLanguage = package.Language;
-                sourceLang = package.Language.Code;
+                SourceLang = App.ViewModel.LangDictionary.CodeToString(package.Language);
             }
-            if (package.TargetLanguage != null)
+            if (!string.IsNullOrEmpty(package.TargetLanguage))
             {
-                targetLang = package.TargetLanguage.ToString();
-                OnPropertyChanged(nameof(TargetLang));
+                TargetLang = App.ViewModel.LangDictionary.CodeToString(package.TargetLanguage);
             }
             Merge(package.Items, Items.Count == 0, fillEmpty);
         }
@@ -275,7 +271,7 @@ namespace ZoDream.LocalizeEditor.ViewModels
             {
                 return;
             }
-            var package = new LanguagePackage(SourceLanguage, CurrentLanguage)
+            var package = new LanguagePackage(SourceLang, TargetLang)
             {
                 FileName = fileName,
             };
@@ -297,13 +293,13 @@ namespace ZoDream.LocalizeEditor.ViewModels
             }
         }
 
-        public void Save(LangItem lang, IEnumerable<UnitViewModel> unitItems)
+        public void Save(string lang, IEnumerable<UnitViewModel> unitItems)
         {
             LanguagePackage package;
-            var has = App.ViewModel.Packages.ContainsKey(lang.Code);
+            var has = App.ViewModel.Packages.ContainsKey(lang);
             if (has)
             {
-                package = App.ViewModel.Packages[lang.Code];
+                package = App.ViewModel.Packages[lang];
                 package.Items.Clear();
             }
             else
@@ -315,6 +311,28 @@ namespace ZoDream.LocalizeEditor.ViewModels
                 package.Items.Add(item.To());
             }
             App.ViewModel.AddPackage(package);
+        }
+
+        public void ApplyExitAttributes()
+        {
+            var package = App.ViewModel.CurrentPackage;
+            if (package is null)
+            {
+                package = new LanguagePackage(SourceLang, TargetLang);
+            } else
+            {
+                package.Items.Clear();
+            }
+            foreach (var item in Items)
+            {
+                package.Items.Add(item.To());
+            }
+            App.ViewModel.AddPackage(package);
+        }
+
+        public void ApplyQueryAttributes(IDictionary<string, object> queries)
+        {
+            Load(App.ViewModel.PackageLanguage);
         }
     }
 }

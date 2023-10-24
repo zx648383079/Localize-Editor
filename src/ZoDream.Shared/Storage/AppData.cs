@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -10,8 +11,9 @@ namespace ZoDream.Shared.Storage
     public static class AppData
     {
 
-        public static string DefaultFileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "setting.json");
-        public static int MaxLazy = 5;// 5s
+        public static string DefaultFileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, 
+            "setting.json");
+        public static int MaxLazy = 0;// 5s
         public static Task<T?> LoadAsync<T>()
         {
             return LoadAsync<T>(DefaultFileName);
@@ -27,7 +29,7 @@ namespace ZoDream.Shared.Storage
                 }
                 try
                 {
-                    return LoadXmlAsync<T>(fileName).GetAwaiter().GetResult();
+                    return LoadJsonAsync<T>(fileName).GetAwaiter().GetResult();
                 }
                 catch (Exception)
                 {
@@ -54,7 +56,7 @@ namespace ZoDream.Shared.Storage
                 }
                 try
                 {
-                    SaveXmlAsync(fileName, data).GetAwaiter().GetResult();
+                    SaveJsonAsync(fileName, data).GetAwaiter().GetResult();
                     return true;
                 }
                 catch (Exception)
@@ -67,6 +69,16 @@ namespace ZoDream.Shared.Storage
         public static Task<bool> SaveAsync<T>(T data)
         {
             return SaveAsync(DefaultFileName, data);
+        }
+
+        private static async Task SaveJsonAsync<T>(string file, T data)
+        {
+            await LocationStorage.WriteAsync(file, JsonConvert.SerializeObject(data));
+        }
+
+        private static async Task<T?> LoadJsonAsync<T>(string file)
+        {
+            return JsonConvert.DeserializeObject<T>(await LocationStorage.ReadAsync(file));
         }
 
         private static async Task SaveXmlAsync<T>(string file, T data)

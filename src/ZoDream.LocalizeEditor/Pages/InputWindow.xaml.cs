@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using ZoDream.LocalizeEditor.Events;
+using ZoDream.LocalizeEditor.ViewModels;
 using ZoDream.Shared.Models;
 
 namespace ZoDream.LocalizeEditor.Pages
@@ -24,34 +25,14 @@ namespace ZoDream.LocalizeEditor.Pages
         public InputWindow()
         {
             InitializeComponent();
+            ViewModel.AddListener(() => {
+                OnCreate?.Invoke(this, ViewModel.Data);
+            });
         }
 
-        private bool isOpen = false;
-
-        public bool IsOpen
-        {
-            get { return isOpen; }
-            set {
-                isOpen = value;
-                Height = value ? 300 : 130;
-                MorePanel.Visibility = value ? Visibility.Visible : Visibility.Collapsed;
-                MoreBtn.Content = value ? "\uE935" : "\uE936";
-            }
-        }
+        public QuicklyAddViewModel ViewModel => (QuicklyAddViewModel)DataContext;
 
         public event ValueChangedEventHandler<UnitItem>? OnCreate;
 
-        private void MoreBtn_Click(object sender, RoutedEventArgs e)
-        {
-            IsOpen = !IsOpen;
-        }
-
-        private void OkBtn_Click(object sender, RoutedEventArgs e)
-        {
-            OnCreate?.Invoke(this, new UnitItem(SourceTb.Text, TargetTb.Text, FileTb.FileName, LineTb.Text)
-            {
-                Id = IdTb.Text
-            });
-        }
     }
 }

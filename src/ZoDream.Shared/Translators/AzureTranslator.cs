@@ -17,15 +17,15 @@ namespace ZoDream.Shared.Translators
 
         public string Region { get; set; } = string.Empty;
 
-        public async Task<string> Translate(LangItem sourceLang, LangItem targetLang, string text)
+        public async Task<string> Translate(string sourceLang, string targetLang, string text)
         {
-            var items = await RequestAsync(targetLang.Code, new string[] { text });
+            var items = await RequestAsync(targetLang, new string[] { text });
             return items.FirstOrDefault();
         }
 
-        public async Task<LanguagePackage> Translate(LangItem targetLang, LanguagePackage package)
+        public async Task<LanguagePackage> Translate(string targetLang, LanguagePackage package)
         {
-            var items = await RequestAsync(targetLang.Code, package.Items.Select(i => i.Source));
+            var items = await RequestAsync(targetLang, package.Items.Select(i => i.Source));
             return new LanguagePackage(package.Language, targetLang)
             {
                 Title = package.Title,
