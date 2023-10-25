@@ -22,10 +22,9 @@ namespace ZoDream.Shared.Readers.Angular
             }
             foreach (var item in data)
             {
-                package.Items.Add(new()
+                package.Items.Add(new(item.Key, item.Value?.ToString() ?? string.Empty)
                 {
-                    Source = item.Key,
-                    Target = item.Value?.ToString() ?? string.Empty,
+                    Id = item.Key,
                 });
             }
             return package;
@@ -36,7 +35,7 @@ namespace ZoDream.Shared.Readers.Angular
             var data = new JObject();
             foreach (var item in package.Items)
             {
-                data.Add(item.Source, item.Target);
+                data.Add(string.IsNullOrWhiteSpace(item.Id) ? item.Source : item.Id, item.Target);
             }
             await LocationStorage.WriteAsync(file, JsonConvert.SerializeObject(data));
         }

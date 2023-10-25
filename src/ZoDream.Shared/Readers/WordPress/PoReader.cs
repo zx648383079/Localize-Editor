@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using ZoDream.Shared.Extensions;
 using ZoDream.Shared.Models;
 using ZoDream.Shared.Storage;
 
@@ -313,7 +314,7 @@ namespace ZoDream.Shared.Readers.WordPress
                 }
                 writer.WriteLine($"#: {sb}");
             }
-            WriteString(writer, "msgid", item.Source);
+            WriteString(writer, "msgid", string.IsNullOrWhiteSpace(item.Source) ? item.Id : item.Source);
             if (string.IsNullOrEmpty(item.SourcePlural))
             {
                 WriteString(writer, "msgstr", item.Target);

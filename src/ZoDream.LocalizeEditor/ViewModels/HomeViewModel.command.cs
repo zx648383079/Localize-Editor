@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Input;
 using ZoDream.LocalizeEditor.Pages;
 using ZoDream.Shared.Routes;
@@ -7,7 +8,6 @@ namespace ZoDream.LocalizeEditor.ViewModels
 {
     public partial class HomeViewModel
     {
-
         public ICommand AddCommand { get; private set; }
         public ICommand EditCommand { get; private set; }
 
@@ -25,8 +25,7 @@ namespace ZoDream.LocalizeEditor.ViewModels
         public ICommand ChangeCommand { get; private set; }
 
         public ICommand SearchCommand {  get; private set; }
-        public ICommand DialogConfirmCommand { get; private set; }
-
+      
         private void TapSearch(object? _)
         {
             FilteredItems.Refresh();
@@ -34,15 +33,7 @@ namespace ZoDream.LocalizeEditor.ViewModels
 
         private void TapChange(object? _)
         {
-            DialogVisible = true;
-        }
-
-        private void TapDialogConfirm(object? _)
-        {
-            
-            DialogVisible = false;
-            TargetLang = DialogTargetLang;
-            Load(App.ViewModel.LangDictionary.RepairCode(DialogTargetLang));
+            DialogOpen();
         }
 
         private void TapExit(object? _)

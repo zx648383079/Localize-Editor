@@ -106,6 +106,7 @@
         <ctl:ContentDialog Title="切换目标语言" SubTitle="选择目标语言"
                    IsOpen="{Binding DialogVisible}"
                     PrimaryCommand="{Binding DialogConfirmCommand}"
+                    SecondaryCommand="{Binding DialogCancelCommand}"
                    Grid.RowSpan="3">
             <Grid>
                 <Grid.RowDefinitions>

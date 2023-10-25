@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Shapes;
 using ZoDream.LocalizeEditor.Events;
+using ZoDream.Shared.Extensions;
 using ZoDream.Shared.Models;
 using ZoDream.Shared.ViewModel;
 
@@ -119,7 +120,7 @@ namespace ZoDream.LocalizeEditor.ViewModels
                 return new UnitViewModel(UpdatedData);
             }
             set {
-                UpdatedData = value.To();
+                UpdatedData = value.Clone<UnitItem>();
                 Source = value.Source;
                 Target = value.Target;
                 Id = value.Id;

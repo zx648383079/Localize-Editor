@@ -10,22 +10,7 @@ namespace ZoDream.LocalizeEditor.ViewModels
     public partial class HomeViewModel
     {
 
-        private bool dialogVisible;
 
-        public bool DialogVisible {
-            get => dialogVisible;
-            set {
-                if (value && LangItems.Length == 0)
-                {
-                    LangItems = App.ViewModel.LangDictionary.ToStringArray();
-                }
-                Set(ref dialogVisible, value);
-                if (value)
-                {
-                    DialogTargetLang = TargetLang;
-                }
-            }
-        }
 
         private string sourceLang = string.Empty;
 
@@ -52,12 +37,7 @@ namespace ZoDream.LocalizeEditor.ViewModels
         public string SourceHeader => $"源: {SourceLang}";
         public string TargetHeader => $"翻译: {TargetLang}";
 
-        private string dialogTargetLang = string.Empty;
 
-        public string DialogTargetLang {
-            get => dialogTargetLang;
-            set => Set(ref dialogTargetLang, value);
-        }
 
         private string[] langItems = Array.Empty<string>();
 

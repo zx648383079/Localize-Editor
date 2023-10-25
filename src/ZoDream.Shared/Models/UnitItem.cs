@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace ZoDream.Shared.Models
 {
-    public class UnitItem
+    public class UnitItem: ITranslateUnit
     {
 
         public string Id { get; set; } = string.Empty;
@@ -27,12 +28,11 @@ namespace ZoDream.Shared.Models
 
         public UnitItem(string source)
         {
-            Source = source;
+            Id = Source = source;
         }
 
-        public UnitItem(string source, string target)
+        public UnitItem(string source, string target): this(source)
         {
-            Source = source;
             Target = target;
         }
 
@@ -46,107 +46,9 @@ namespace ZoDream.Shared.Models
             Location.Add(new SourceLocation(fileName, line));
         }
 
-        public void AddLine(string fileName, string line)
+        public void AddLine(string fileName, string lineNo)
         {
-            if (string.IsNullOrEmpty(fileName))
-            {
-                return;
-            }
-            foreach (var item in Location)
-            {
-                if (item.FileName == fileName)
-                {
-                    item.Add(line);
-                    return;
-                }
-            }
-            Location.Add(new SourceLocation(fileName, line));
-        }
-
-
-        public void AddLine(SourceLocation location)
-        {
-            if (string.IsNullOrEmpty(location.FileName))
-            {
-                return;
-            }
-            foreach (var item in Location)
-            {
-                if (item.FileName == location.FileName)
-                {
-                    item.Add(location.LineNumber);
-                    return;
-                }
-            }
-            Location.Add(location);
-        }
-
-        public int IndexOf(SourceLocation e)
-        {
-            return IndexOf(e.FileName);
-        }
-
-        public int IndexOf(string file)
-        {
-            for (int i = 0; i < Location.Count; i++)
-            {
-                if (Location[i].FileName == file)
-                {
-                    return i;
-                }
-            }
-            return -1;
-        }
-
-        public void AddLine(List<SourceLocation> items)
-        {
-            if (items.Count == 0)
-            {
-                return;
-            }
-            foreach (var item in items)
-            {
-                var i = IndexOf(item);
-                if (i < 0)
-                {
-                    Location.Add(item);
-                    continue;
-                }
-                Location[i].Add(item.LineNumber);
-            }
-        }
-
-        public UnitItem Clone()
-        {
-            return new UnitItem(Source, string.Empty)
-            {
-                Id = Id,
-                Location = Location,
-            };
-        }
-
-        public void SetTarget(string[] items)
-        {
-            for (var i = 0; i < items.Length; i++)
-            {
-                if (i < 1)
-                {
-                    Target = items[i];
-                } else
-                {
-                    TargetPlural.Add(items[i]);
-                }
-            }
-        }
-
-        public void AddTarget(string item)
-        {
-            if (string.IsNullOrEmpty(Target))
-            {
-                Target = item;
-                return;
-            }
-            TargetPlural.Add(item);
+            throw new NotImplementedException();
         }
     }
 }

@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using ZoDream.Shared.Extensions;
 using ZoDream.Shared.Models;
 
 namespace ZoDream.Shared.Translators
@@ -33,7 +34,7 @@ namespace ZoDream.Shared.Translators
                 Description = package.Description,
                 MetaItems = package.MetaItems,
                 Items = items.Select((text, i) => {
-                    var arg = package.Items[i].Clone();
+                    var arg = package.Items[i].Instance<UnitItem>();
                     arg.Target = text;
                     return arg;
                 }).ToList()

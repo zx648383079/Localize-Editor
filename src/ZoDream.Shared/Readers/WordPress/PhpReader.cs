@@ -21,7 +21,10 @@ namespace ZoDream.Shared.Readers.WordPress
             }
             foreach (Match item in matches)
             {
-                package.Items.Add(new UnitItem(item.Groups[1].Value, item.Groups[2].Value));
+                package.Items.Add(new UnitItem(item.Groups[1].Value, item.Groups[2].Value)
+                {
+                    Id = item.Groups[1].Value,
+                });
             }
             return package;
         }
@@ -37,7 +40,8 @@ namespace ZoDream.Shared.Readers.WordPress
             sb.AppendLine("return [");
             foreach (var item in package.Items)
             {
-                sb.AppendLine($"    '{item.Source}' => '${item.Target}',");
+                var source = string.IsNullOrWhiteSpace(item.Id) ? item.Source : item.Id;
+                sb.AppendLine($"    '{source}' => '${item.Target}',");
             }
             sb.AppendLine("];");
             await LocationStorage.WriteAsync(file, sb.ToString());

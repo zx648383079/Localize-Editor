@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using System.Threading.Tasks;
+using ZoDream.Shared.Extensions;
 using ZoDream.Shared.Models;
 using ZoDream.Shared.Storage;
 
@@ -86,13 +87,13 @@ namespace ZoDream.Shared.Readers.WordPress
                 if (ori.Contains('\0'))
                 {
                     var _ori = ori.Split(new[] { '\0' });
-                    item.Id = item.Source = _ori[0];
+                    item.Source = _ori[0];
                     item.SourcePlural = _ori[1];
                     item.SetTarget(tra.Split(new[] { '\0' }));
                 }
                 else
                 {
-                    item.Id = item.Source = ori;
+                    item.Source = ori;
                     item.Target = tra;
                 }
                 package.Items.Add(item);
@@ -173,13 +174,15 @@ namespace ZoDream.Shared.Readers.WordPress
                 var item = items[i - 1];
                 var idOffset = idBuffer.Count;
                 var strOffset = strBuffer.Count;
+
+                var source = string.IsNullOrWhiteSpace(item.Source) ? item.Id : item.Source;
                 if (string.IsNullOrWhiteSpace(item.SourcePlural))
                 {
-                    idBuffer.AddRange(encoding.GetBytes(item.Source));
+                    idBuffer.AddRange(encoding.GetBytes(source));
                     strBuffer.AddRange(encoding.GetBytes(item.Target));
                 } else
                 {
-                    idBuffer.AddRange(encoding.GetBytes(item.Source));
+                    idBuffer.AddRange(encoding.GetBytes(source));
                     idBuffer.AddRange(splitBuffer);
                     idBuffer.AddRange(encoding.GetBytes(item.SourcePlural));
                     strBuffer.AddRange(encoding.GetBytes(item.Target));

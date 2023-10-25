@@ -30,6 +30,10 @@ namespace ZoDream.LocalizeEditor.ViewModels
         public readonly Dictionary<string, LanguagePackage> Packages = new();
 
         public string PackageLanguage { get; set; } = string.Empty;
+        /// <summary>
+        /// 获取当前项目的源语言
+        /// </summary>
+        public string PackageSourceLanguage => Packages.Values.First().Language ?? "en";
 
         public LanguagePackage? CurrentPackage 
         {
@@ -194,7 +198,7 @@ namespace ZoDream.LocalizeEditor.ViewModels
             {
                 return string.Empty;
             }
-            return await client.Translate(Packages.Values.First().Language ?? "en", 
+            return await client.Translate(PackageSourceLanguage,
                 PackageLanguage, text);
         }
 

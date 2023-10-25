@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using System.Xml.Serialization;
+using ZoDream.Shared.Extensions;
 using ZoDream.Shared.Models;
 using ZoDream.Shared.Storage;
 

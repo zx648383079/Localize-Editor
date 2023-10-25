@@ -26,8 +26,9 @@ namespace ZoDream.Shared.Readers.CSharp
             var doc = XDocument.Load(file);
             var root = doc.Root;
             if (root == null)
+            {
                 return package;
-
+            }
             var ns = XNamespace.Get(string.Empty);
             var items = root
                 .Elements(ns + "data")

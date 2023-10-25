@@ -2,16 +2,12 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
-using ZoDream.Shared;
+using ZoDream.Shared.Extensions;
 using ZoDream.Shared.Models;
-using ZoDream.Shared.Readers;
 using ZoDream.Shared.Routes;
-using ZoDream.Shared.Storage;
 using ZoDream.Shared.ViewModel;
 
 namespace ZoDream.LocalizeEditor.ViewModels
@@ -35,7 +31,7 @@ namespace ZoDream.LocalizeEditor.ViewModels
             ChangeCommand = new RelayCommand(TapChange);
             SearchCommand = new RelayCommand(TapSearch);
             DialogConfirmCommand = new RelayCommand(TapDialogConfirm);
-
+            DialogCancelCommand = new RelayCommand(TapDialogCancel);
             FilteredItems = CollectionViewSource.GetDefaultView(Items);
             FilteredItems.Filter = item => {
                 if (item is not UnitViewModel o)
@@ -159,7 +155,7 @@ namespace ZoDream.LocalizeEditor.ViewModels
                 {
                     continue;
                 }
-                if (checkSameFile && !HasSameFile(source, item))
+                if (checkSameFile && !source.HasSameFile(item))
                 {
                     continue;
                 }
@@ -168,35 +164,17 @@ namespace ZoDream.LocalizeEditor.ViewModels
             return null;
         }
 
-        private bool HasSameFile(UnitViewModel dist, UnitItem source)
-        {
-            if (dist.Location.Count == 0 || source.Location.Count == 0)
-            {
-                return true;
-            }
-            foreach (var item in dist.Location)
-            {
-                foreach (var it in source.Location)
-                {
-                    if (item.FileName == it.FileName)
-                    {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
 
-        private bool ShouldMerge(UnitViewModel dist, UnitItem source, bool byId = true, bool byPath = false)
+        private bool ShouldMerge(UnitViewModel dist, UnitItem source, 
+            bool byId = true, bool byPath = false)
         {
             if (byId)
             {
-                return string.IsNullOrWhiteSpace(source.Id) ||
-                        string.IsNullOrWhiteSpace(dist.Id) || source.Id == dist.Id;
+                return dist.IsSameId(source);
             }
             if (byPath)
             {
-                return HasSameFile(dist, source);
+                return dist.HasSameFile(source);
             }
             return true;
         }
@@ -208,7 +186,7 @@ namespace ZoDream.LocalizeEditor.ViewModels
             {
                 for (int i = 0; i < Items.Count; i++)
                 {
-                    Items[i] = Items[i].Clone();
+                    Items[i] = Items[i].Instance<UnitViewModel>();
                 }
                 return;
             }
@@ -222,7 +200,7 @@ namespace ZoDream.LocalizeEditor.ViewModels
         public void Load()
         {
             App.ViewModel.Packages.Clear();
-            SourceLang = "en";
+            SourceLang = App.ViewModel.LangDictionary.CodeToString("en");
             TargetLang = string.Empty;
             Items.Clear();
         }
@@ -238,9 +216,21 @@ namespace ZoDream.LocalizeEditor.ViewModels
             {
                 package.FileName = fileName;
             }
-            App.ViewModel.AddPackage(package);
-            App.Current.Dispatcher.Invoke(() =>
+            package.Language = App.ViewModel.PackageSourceLanguage;
+            if (string.IsNullOrWhiteSpace(package.TargetLanguage))
             {
+                DialogOpen(lang => {
+                    package.TargetLanguage = lang;
+                    App.Current.Dispatcher.Invoke(() =>
+                    {
+                        App.ViewModel.AddPackage(package);
+                        LoadAsync(package, fillEmpty);
+                    });
+                });
+                return;
+            }
+            App.Current.Dispatcher.Invoke(() => {
+                App.ViewModel.AddPackage(package);
                 LoadAsync(package, fillEmpty);
             });
         }
@@ -277,7 +267,7 @@ namespace ZoDream.LocalizeEditor.ViewModels
             };
             foreach (var item in Items)
             {
-                package.Items.Add(item.To());
+                package.Items.Add(item.Clone<UnitItem>());
             }
             await reader.WriteAsync(fileName, package);
             App.ViewModel.DispatcherQueue.Invoke(() => {
@@ -308,7 +298,7 @@ namespace ZoDream.LocalizeEditor.ViewModels
             }
             foreach (var item in unitItems)
             {
-                package.Items.Add(item.To());
+                package.Items.Add(item.Clone<UnitItem>());
             }
             App.ViewModel.AddPackage(package);
         }
@@ -325,7 +315,7 @@ namespace ZoDream.LocalizeEditor.ViewModels
             }
             foreach (var item in Items)
             {
-                package.Items.Add(item.To());
+                package.Items.Add(item.Clone<UnitItem>());
             }
             App.ViewModel.AddPackage(package);
         }
