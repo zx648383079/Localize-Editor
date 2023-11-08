@@ -72,7 +72,7 @@ namespace ZoDream.Shared.Storage
             if (!append)
             {
                 fs = new FileStream(file, FileMode.Create, FileAccess.ReadWrite);
-                return new StreamWriter(fs, Encoding.UTF8);
+                return new StreamWriter(fs, new UTF8Encoding(false));
             }
             fs = new FileStream(file, FileMode.OpenOrCreate, FileAccess.ReadWrite);
             var encoding = TxtEncoder.GetEncoding(fs);

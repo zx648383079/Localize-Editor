@@ -18,7 +18,7 @@ namespace ZoDream.LocalizeEditor.ViewModels
 {
     public class AppViewModel : IDisposable
     {
-        public const string FileFilters = "XLFF文件|*.xlf|JSON文件|*.json|RESW文件|*.resw|PO文件|*.po;*.mo|PHP文件|*.php|所有文件|*.*";
+        public const string FileFilters = ReaderFactory.FileFilters;
 
         public AppViewModel()
         {
@@ -210,7 +210,7 @@ namespace ZoDream.LocalizeEditor.ViewModels
             {
                 return string.Empty;
             }
-            if (client is not IBrowserTranslator browserClient)
+            if (!Option.UseBrowser || client is not IBrowserTranslator browserClient)
             {
                 return await client.Translate(PackageSourceLanguage,
                 PackageLanguage, text);
@@ -225,59 +225,12 @@ namespace ZoDream.LocalizeEditor.ViewModels
 
         public ITranslator? GetTranslator()
         {
-            return Option.Translator switch
-            {
-                "DeepL" => new DeepLTranslator()
-                {
-                    AuthKey = Option.TranslatorData["AuthKey"]
-                },
-                "Baidu" => new BaiduTranslator()
-                {
-                    AppId = Option.TranslatorData["AppId"],
-                    Secret = Option.TranslatorData["Secret"],
-                },
-                "Tencent" => new TencentTranslator()
-                {
-                    ProjectId = Option.TranslatorData["ProjectId"],
-                    Region = Option.TranslatorData["Region"],
-                    SecretId = Option.TranslatorData["SecretId"],
-                    SecretKey = Option.TranslatorData["SecretKey"],
-                },
-                "YouDao" => new YouDaoTranslator()
-                {
-                    AppKey = Option.TranslatorData["AppKey"],
-                    Secret = Option.TranslatorData["Secret"],
-                },
-                "Azure" => new AzureTranslator()
-                {
-                    AuthKey = Option.TranslatorData["AuthKey"],
-                    Region = Option.TranslatorData["Region"],
-                },
-                "Google" => new GoogleTranslator()
-                {
-                    Token = Option.TranslatorData["Token"],
-                    Project = Option.TranslatorData["Project"],
-                },
-                _ => null,
-            };
+            return TranslatorFactory.Translator(Option.Translator, Option.TranslatorData);
         }
 
         public static IReader? Reader(string name)
         {
-            if (name[0] == '.')
-            {
-                name = name[1..];
-            }
-            return name.ToLower() switch
-            {
-                "xlf" => new Shared.Readers.Angular.XlfReader(),
-                "mo" => new Shared.Readers.WordPress.MoReader(),
-                "po" => new Shared.Readers.WordPress.PoReader(),
-                "resx" => new Shared.Readers.CSharp.ResXReader(),
-                "php" => new Shared.Readers.WordPress.PhpReader(),
-                "json" => new Shared.Readers.Angular.JsonReader(),
-                _ => null,
-            };
+            return ReaderFactory.Reader(name);
         }
     }
 }

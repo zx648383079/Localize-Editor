@@ -33,7 +33,7 @@ namespace ZoDream.Shared.Models
             Value = val;
         }
 
-        public InputItem(string name, string label, Dictionary<string, string>? data): this(name, label)
+        public InputItem(string name, string label, IDictionary<string, string>? data): this(name, label)
         {
             if (data is not null && data.TryGetValue(name, out var val))
             {
@@ -41,7 +41,7 @@ namespace ZoDream.Shared.Models
             }
         }
 
-        public InputItem(string name, Dictionary<string, string>? data) : this(name, name, data)
+        public InputItem(string name, IDictionary<string, string>? data) : this(name, name, data)
         {
         }
     }

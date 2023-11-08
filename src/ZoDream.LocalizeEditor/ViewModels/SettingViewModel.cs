@@ -4,6 +4,7 @@ using System.Linq;
 using System.Windows.Input;
 using ZoDream.Shared.Models;
 using ZoDream.Shared.Routes;
+using ZoDream.Shared.Translators;
 using ZoDream.Shared.ViewModel;
 
 namespace ZoDream.LocalizeEditor.ViewModels
@@ -26,15 +27,19 @@ namespace ZoDream.LocalizeEditor.ViewModels
             set => Set(ref version, value);
         }
 
+        private bool useBrowser;
 
-        private InputItem[] translatorItems = new InputItem[]{
-            new("DeepL", "DeepL翻译"),
-            new("Baidu", "百度翻译"),
-            new("Tencent", "腾讯翻译"),
-            new("YouDao", "有道翻译"),
-            new("Azure", "必应翻译"),
-            new("Google", "谷歌翻译"),
-        };
+        public bool UseBrowser {
+            get => useBrowser;
+            set {
+                Set(ref useBrowser, value);
+                IsSettingUpdated = true;
+            }
+        }
+
+
+
+        private InputItem[] translatorItems = TranslatorFactory.NameItems;
 
         public InputItem[] TranslatorItems {
             get => translatorItems;
@@ -95,41 +100,17 @@ namespace ZoDream.LocalizeEditor.ViewModels
                     break;
                 }
             }
+            UseBrowser = option.UseBrowser;
             UpdateForm(option.Translator, option.TranslatorData);
         }
 
         private void UpdateForm(string name, Dictionary<string, string>? data = null)
         {
             InputItems.Clear();
-            switch (name)
+            var items = TranslatorFactory.RenderForm(name, data);
+            foreach (var item in items)
             {
-                case "DeepL":
-                    InputItems.Add(new("AuthKey", data));
-                    break;
-                case "Baidu":
-                    InputItems.Add(new("AppId", data));
-                    InputItems.Add(new("Secret", data));
-                    break;
-                case "Tencent":
-                    InputItems.Add(new("SecretId", data));
-                    InputItems.Add(new("SecretKey", data));
-                    InputItems.Add(new("Region", data));
-                    InputItems.Add(new("ProjectId", data));
-                    break;
-                case "YouDao":
-                    InputItems.Add(new("AppKey", data));
-                    InputItems.Add(new("Secret", data));
-                    break;
-                case "Azure":
-                    InputItems.Add(new("AuthKey", data));
-                    InputItems.Add(new("Region", data));
-                    break;
-                case "Google":
-                    InputItems.Add(new("Token", data));
-                    InputItems.Add(new("Project", data));
-                    break;
-                default:
-                    break;
+                InputItems.Add(item);
             }
         }
 
@@ -138,6 +119,7 @@ namespace ZoDream.LocalizeEditor.ViewModels
             if (IsSettingUpdated && Translator is not null)
             {
                 var option = App.ViewModel.Option;
+                option.UseBrowser = UseBrowser;
                 option.Translator = Translator.Name;
                 option.TranslatorData.Clear();
                 foreach (var item in InputItems)

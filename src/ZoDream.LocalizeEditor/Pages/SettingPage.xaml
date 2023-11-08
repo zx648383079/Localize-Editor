@@ -38,6 +38,10 @@
             <StackPanel Margin="10,20">
                 <TextBlock Text="系统设置" Style="{DynamicResource TitleTextBlockStyle}" 
                            Margin="0,20,0,10"/>
+                <ctl:SettingInput Icon="&#xE128;" Header="启用浏览模式" Meta="开启浏览免费模式，不需要使用API付费，但速度慢且可能需手动">
+                    <ctl:SwitchInput Value="{Binding UseBrowser}"/>
+                </ctl:SettingInput>
+
                 <ctl:SettingInputGroup Icon="&#xE167;" Header="翻译管理" Meta="设置翻译插件">
                     <Grid Margin="10,10,10,20">
                         <Grid.ColumnDefinitions>

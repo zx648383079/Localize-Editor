@@ -6,5 +6,6 @@
         <ResourceDictionary Source="/ZoDream.LocalizeEditor;component/Themes/Button.xaml"/>
         <ResourceDictionary Source="/ZoDream.LocalizeEditor;component/Themes/Dialog.xaml"/>
         <ResourceDictionary Source="/ZoDream.LocalizeEditor;component/Themes/Setting.xaml"/>
+        <ResourceDictionary Source="/ZoDream.LocalizeEditor;component/Themes/Input.xaml"/>
     </ResourceDictionary.MergedDictionaries>
 </ResourceDictionary>
