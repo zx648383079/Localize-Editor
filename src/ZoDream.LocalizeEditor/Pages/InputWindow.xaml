@@ -7,7 +7,8 @@
         xmlns:ctl="clr-namespace:ZoDream.LocalizeEditor.Controls"
         xmlns:vm="clr-namespace:ZoDream.LocalizeEditor.ViewModels"
         mc:Ignorable="d"
-        Title="快捷添加" Height="{Binding WindowHeight}" Width="400" WindowStartupLocation="CenterScreen" 
+        Title="快捷添加" 
+        Width="400" WindowStartupLocation="CenterScreen" 
         ResizeMode="NoResize" Topmost="True">
 
     <Window.DataContext>

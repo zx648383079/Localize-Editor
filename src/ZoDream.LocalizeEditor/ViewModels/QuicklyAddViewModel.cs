@@ -38,10 +38,11 @@ namespace ZoDream.LocalizeEditor.ViewModels
             set {
                 Set(ref isFully, value);
                 OnPropertyChanged(nameof(MoreIcon));
+                OnPropertyChanged(nameof(WindowHeight));
             }
         }
 
-        public double WindowHeight => IsFully ? 300 : 130;
+        public double WindowHeight => IsFully ? 300.0 : 130.0;
 
 
         public string MoreIcon => IsFully ? "\uE935" : "\uE936";

@@ -16,9 +16,8 @@ namespace ZoDream.Shared.Translators
 
         public static string MD5Encode(string source) {
             var sor = Encoding.UTF8.GetBytes(source);
-            var md5 = MD5.Create();
+            using var md5 = MD5.Create();
             var result = md5.ComputeHash(sor);
-            md5.Dispose();
             var sb = new StringBuilder(40);
             for (int i = 0; i < result.Length; i++)
             {
@@ -38,6 +37,12 @@ namespace ZoDream.Shared.Translators
                 builder.Append(hash[i].ToString("x2"));
             }
             return builder.ToString();
+        }
+
+        public static byte[] HMAC_SHA256(byte[] key, byte[] msg)
+        {
+            using var mac = new HMACSHA256(key);
+            return mac.ComputeHash(msg);
         }
 
         public static int Timestamp(DateTime time)

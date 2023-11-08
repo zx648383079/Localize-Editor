@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.IO.Packaging;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 using ZoDream.Shared.Extensions;
 using ZoDream.Shared.Models;
+using ZoDream.Shared.Readers;
 using ZoDream.Shared.Routes;
 using ZoDream.Shared.ViewModel;
 
@@ -32,7 +34,13 @@ namespace ZoDream.LocalizeEditor.ViewModels
             SearchCommand = new RelayCommand(TapSearch);
             DialogConfirmCommand = new RelayCommand(TapDialogConfirm);
             DialogCancelCommand = new RelayCommand(TapDialogCancel);
+            OpenBrowserCommand = new RelayCommand(TapOpenBrowser);
+            ImportDatabaseCommand = new RelayCommand(TapImportDatabase);
+            ExportDatabaseCommand = new RelayCommand(TapExportDatabase);
+            DatabaseDialogConfirmCommand = new RelayCommand(TapDatabaseDialogConfirm);
+            DatabaseType = DatabaseTypeItems[0];
             FilteredItems = CollectionViewSource.GetDefaultView(Items);
+
             FilteredItems.Filter = item => {
                 if (item is not UnitViewModel o)
                 {
@@ -220,9 +228,38 @@ namespace ZoDream.LocalizeEditor.ViewModels
             if (string.IsNullOrWhiteSpace(package.TargetLanguage))
             {
                 DialogOpen(lang => {
-                    package.TargetLanguage = lang;
+                    package.TargetLanguage = (string)lang;
                     App.Current.Dispatcher.Invoke(() =>
                     {
+                        App.ViewModel.AddPackage(package);
+                        LoadAsync(package, fillEmpty);
+                    });
+                });
+                return;
+            }
+            App.Current.Dispatcher.Invoke(() => {
+                App.ViewModel.AddPackage(package);
+                LoadAsync(package, fillEmpty);
+            });
+        }
+
+        public async Task LoadAsync(IReader? reader, string fileName, bool fillEmpty = false)
+        {
+            if (reader == null)
+            {
+                return;
+            }
+            var package = await reader.ReadAsync(fileName);
+            if (package is null)
+            {
+                return;
+            }
+            package.Language = App.ViewModel.PackageSourceLanguage;
+            if (string.IsNullOrWhiteSpace(package.TargetLanguage))
+            {
+                DialogOpen(lang => {
+                    package.TargetLanguage = (string)lang;
+                    App.Current.Dispatcher.Invoke(() => {
                         App.ViewModel.AddPackage(package);
                         LoadAsync(package, fillEmpty);
                     });
@@ -252,28 +289,37 @@ namespace ZoDream.LocalizeEditor.ViewModels
             Merge(package.Items, Items.Count == 0, fillEmpty);
         }
 
-
+        public LanguagePackage ReaderPackage {
+            get {
+                var package = new LanguagePackage(SourceLang, TargetLang);
+                foreach (var item in Items)
+                {
+                    package.Items.Add(item.Clone<UnitItem>());
+                }
+                return package;
+            }
+        }
 
         public async Task SaveAsync(string fileName)
         {
             var reader = AppViewModel.Reader(Path.GetExtension(fileName));
+            await SaveAsync(reader, fileName);
+        }
+
+        public async Task SaveAsync(IReader? reader, string fileName)
+        {
             if (reader == null)
             {
                 return;
             }
-            var package = new LanguagePackage(SourceLang, TargetLang)
-            {
-                FileName = fileName,
-            };
-            foreach (var item in Items)
-            {
-                package.Items.Add(item.Clone<UnitItem>());
-            }
+            var package = ReaderPackage;
+            package.FileName = fileName;
             await reader.WriteAsync(fileName, package);
             App.ViewModel.DispatcherQueue.Invoke(() => {
                 MessageBox.Show("保存成功");
             });
         }
+
         public async Task SaveAsync()
         {
             var package = App.ViewModel.CurrentPackage;

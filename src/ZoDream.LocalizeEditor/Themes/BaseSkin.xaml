@@ -38,6 +38,10 @@
         <Setter Property="Height" Value="32"/>
         <Setter Property="MaxLines" Value="1"/>
     </Style>
+    <Style x:Key="InputSelectStyle" TargetType="ComboBox">
+        <Setter Property="Height" Value="32"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
     <Style x:Key="MetaLabelStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="13"/>
         <Setter Property="Foreground" Value="Gray"/>

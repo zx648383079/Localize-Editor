@@ -10,11 +10,13 @@ using ZoDream.Shared.Models;
 
 namespace ZoDream.Shared.Translators
 {
-    public class GoogleTranslator : ITranslator
+    public class GoogleTranslator : ITranslator, IBrowserTranslator
     {
 
         public string Token { get; set; } = string.Empty;
         public string Project { get; set; } = string.Empty;
+
+        public string EntryURL => "https://translate.google.com/";
 
         public async Task<string> Translate(string sourceLang, string targetLang, string text)
         {
@@ -66,6 +68,23 @@ namespace ZoDream.Shared.Translators
                 return Array.Empty<string>();
             }
             return data.Data.TransItems.Select(i => i.Text);
+        }
+
+        public string TranslateScript(string sourceLang, string targetLang, string text)
+        {
+            return "var input = document.querySelector('textarea');"
+                + "input.value ='" + text + "';"
+                + JavaScriptHelper.Blur("input")
+                + "var output = document.querySelector('.lRu31');"
+                + "function trf(){ " +
+                JavaScriptHelper.Callback("output")
+                + "output.removeEventListener('change', trf); }"
+                + "output.addEventListener('change', trf)";
+        }
+
+        public string GetScript()
+        {
+            return JavaScriptHelper.Callback("document.querySelector('.lRu31')");
         }
 
         private class GoogleTranslateObject

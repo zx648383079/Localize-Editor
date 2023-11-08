@@ -9,12 +9,14 @@ using ZoDream.Shared.Models;
 
 namespace ZoDream.Shared.Translators
 {
-    public class YouDaoTranslator : ITranslator
+    public class YouDaoTranslator : ITranslator, IBrowserTranslator
     {
 
         public string AppKey { get; set; } = string.Empty;
 
         public string Secret { get; set; } = string.Empty;
+
+        public string EntryURL => "https://fanyi.youdao.com/";
 
         public async Task<string> Translate(string sourceLang, string targetLang, string text)
         {
@@ -70,6 +72,23 @@ namespace ZoDream.Shared.Translators
                 return Array.Empty<string>();
             }
             return data.TransItems.Select(i => i.Text);
+        }
+
+        public string TranslateScript(string sourceLang, string targetLang, string text)
+        {
+            return "var input = document.getElementById('js_fanyi_input');"
+                + "input.innerText ='" + text + "';"
+                + JavaScriptHelper.Blur("input")
+                + "var output = document.getElementById('js_fanyi_output_resultOutput');"
+                + "function trf(){ " +
+                JavaScriptHelper.Callback("output")
+                + "output.removeEventListener('change', trf); }"
+                + "output.addEventListener('change', trf)";
+        }
+
+        public string GetScript()
+        {
+            return JavaScriptHelper.Callback("document.getElementById('js_fanyi_output_resultOutput')");
         }
 
         private class YouDaoTranslate

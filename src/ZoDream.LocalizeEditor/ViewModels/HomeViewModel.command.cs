@@ -25,7 +25,18 @@ namespace ZoDream.LocalizeEditor.ViewModels
         public ICommand ChangeCommand { get; private set; }
 
         public ICommand SearchCommand {  get; private set; }
-      
+
+        public ICommand OpenBrowserCommand {  get; private set; }
+
+        public ICommand ImportDatabaseCommand {  get; private set; }
+        public ICommand ExportDatabaseCommand {  get; private set; }
+
+
+        private void TapOpenBrowser(object? _)
+        {
+            App.ViewModel.OpenBrowser();
+        }
+
         private void TapSearch(object? _)
         {
             FilteredItems.Refresh();
@@ -166,6 +177,21 @@ namespace ZoDream.LocalizeEditor.ViewModels
         {
             TapSaveAs(arg);
         }
+
+        private void TapExportDatabase(object? _)
+        {
+            DatabaseDialogOpen((s, reader) => {
+                _ = SaveAsync(reader, s);
+            });
+        }
+
+        private void TapImportDatabase(object? _)
+        {
+            DatabaseDialogOpen((s, reader) => {
+                _ = LoadAsync(reader, s);
+            });
+        }
+
         private void TapSetting(object? _)
         {
             ShellManager.GoToAsync("setting");

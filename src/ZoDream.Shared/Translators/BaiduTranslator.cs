@@ -9,12 +9,14 @@ using ZoDream.Shared.Models;
 
 namespace ZoDream.Shared.Translators
 {
-    public class BaiduTranslator : ITranslator
+    public class BaiduTranslator : ITranslator, IBrowserTranslator
     {
 
         public string AppId { get; set; } = string.Empty;
 
         public string Secret { get; set; } = string.Empty;
+
+        public string EntryURL => "https://fanyi.baidu.com/";
 
         public async Task<string> Translate(string sourceLang, string targetLang, string text)
         {
@@ -69,6 +71,23 @@ namespace ZoDream.Shared.Translators
                 return Array.Empty<string>();
             }
             return data.TransItems.Select(i => i.Text);
+        }
+
+        public string TranslateScript(string sourceLang, string targetLang, string text)
+        {
+            return "var input = document.getElementById('baidu_translate_input');"
+                + "input.value ='" + text + "';"
+                + JavaScriptHelper.Blur("input")
+                + "var output = document.querySelector('.target-output');"
+                + "function trf(){ " +
+                JavaScriptHelper.Callback("output")
+                + "output.removeEventListener('change', trf); }"
+                + "output.addEventListener('change', trf)";
+        }
+
+        public string GetScript()
+        {
+            return JavaScriptHelper.Callback("document.querySelector('.target-output')");
         }
 
         private class BaiduTranslate

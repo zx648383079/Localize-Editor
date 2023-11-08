@@ -7,13 +7,16 @@ using System.Text;
 using System.Threading.Tasks;
 using ZoDream.Shared.Extensions;
 using ZoDream.Shared.Models;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace ZoDream.Shared.Translators
 {
-    public class DeepLTranslator : ITranslator
+    public class DeepLTranslator : ITranslator, IBrowserTranslator
     {
 
         public string AuthKey { get; set; } = string.Empty;
+
+        public string EntryURL => "https://www.deepl.com/translator"; // "#zh/de/文字"
 
         public async Task<string> Translate(string sourceLang, string targetLang, string text)
         {
@@ -64,6 +67,22 @@ namespace ZoDream.Shared.Translators
                 return Array.Empty<string>();
             }
             return data.TransItems.Select(i => i.Text);
+        }
+
+        public string TranslateScript(string sourceLang, string targetLang, string text)
+        {
+            return "var items = document.querySelectorAll('d-textarea');"
+                + "items[0].firstChild.innerText ='" + text + "';"
+                + JavaScriptHelper.Paste("items[0].firstChild", text)
+                + "function trf(){ " +
+                JavaScriptHelper.Callback("items[1].firstChild") +
+                " }"
+                + JavaScriptHelper.ListenChange("items[1].firstChild", "trf");
+        }
+
+        public string GetScript()
+        {
+            return JavaScriptHelper.Callback("document.querySelectorAll('d-textarea')[1].firstChild");
         }
 
         private class DeepLTranslate

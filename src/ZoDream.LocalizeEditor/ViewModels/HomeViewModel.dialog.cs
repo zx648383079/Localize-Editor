@@ -47,6 +47,8 @@ namespace ZoDream.LocalizeEditor.ViewModels
         private void TapDialogCancel(object? _)
         {
             DialogVisible = false;
+            DatabaseDialogCallbackFn = null;
+            DatabaseDialogVisible = false;
             DialogCallbackFn = null;
         }
 

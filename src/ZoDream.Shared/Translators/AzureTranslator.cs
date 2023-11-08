@@ -11,12 +11,14 @@ using ZoDream.Shared.Models;
 
 namespace ZoDream.Shared.Translators
 {
-    public class AzureTranslator : ITranslator
+    public class AzureTranslator : ITranslator, IBrowserTranslator
     {
 
         public string AuthKey { get; set; } = string.Empty;
 
         public string Region { get; set; } = string.Empty;
+
+        public string EntryURL => "https://cn.bing.com/translator";//?from=en&to=zh-Hans";
 
         public async Task<string> Translate(string sourceLang, string targetLang, string text)
         {
@@ -71,6 +73,23 @@ namespace ZoDream.Shared.Translators
                 return Array.Empty<string>();
             }
             return data[0].Translations.Select(i => i.Text);
+        }
+
+        public string TranslateScript(string sourceLang, string targetLang, string text)
+        {
+            return "var input = document.getElementById('tta_input_ta');"
+                + "input.value ='" + text + "';"
+                + JavaScriptHelper.Blur("input")
+                + "var output = document.getElementById('tta_output_ta');"
+                + "function trf(){ " +
+                JavaScriptHelper.Callback("output", true)
+                + "output.removeEventListener('change', trf); }"
+                + "output.addEventListener('change', trf)";
+        }
+
+        public string GetScript()
+        {
+            return JavaScriptHelper.Callback("document.getElementById('tta_output_ta')", true);
         }
 
         private class AzureTranslate

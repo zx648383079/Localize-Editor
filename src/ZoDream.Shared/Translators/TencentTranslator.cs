@@ -11,13 +11,15 @@ using ZoDream.Shared.Models;
 
 namespace ZoDream.Shared.Translators
 {
-    public class TencentTranslator : ITranslator
+    public class TencentTranslator : ITranslator, IBrowserTranslator
     {
 
         public string ProjectId { get; set; } = string.Empty;
         public string SecretId { get; set; } = string.Empty;
         public string SecretKey { get; set; } = string.Empty;
         public string Region { get; set; } = "ap-beijing";
+
+        public string EntryURL => "https://fanyi.qq.com/";
 
         public async Task<string> Translate(string sourceLang, string targetLang, string text)
         {
@@ -91,18 +93,30 @@ namespace ZoDream.Shared.Translators
         private string Sign(string signData, string date, string service)
         {
             var tc3SecretKey = Encoding.UTF8.GetBytes("TC3" + SecretKey);
-            var secretDate = HmacSHA256(tc3SecretKey, Encoding.UTF8.GetBytes(date));
-            var secretService = HmacSHA256(secretDate, Encoding.UTF8.GetBytes(service));
-            var secretSigning = HmacSHA256(secretService, Encoding.UTF8.GetBytes("tc3_request"));
-            var signatureBytes = HmacSHA256(secretSigning, Encoding.UTF8.GetBytes(signData));
+            var secretDate = HttpHelper.HMAC_SHA256(tc3SecretKey, Encoding.UTF8.GetBytes(date));
+            var secretService = HttpHelper.HMAC_SHA256(secretDate, Encoding.UTF8.GetBytes(service));
+            var secretSigning = HttpHelper.HMAC_SHA256(secretService, Encoding.UTF8.GetBytes("tc3_request"));
+            var signatureBytes = HttpHelper.HMAC_SHA256(secretSigning, Encoding.UTF8.GetBytes(signData));
             return BitConverter.ToString(signatureBytes).Replace("-", "").ToLower();
         }
 
-        private static byte[] HmacSHA256(byte[] key, byte[] msg)
+        public string TranslateScript(string sourceLang, string targetLang, string text)
         {
-            using var mac = new HMACSHA256(key);
-            return mac.ComputeHash(msg);
+            return "var input = document.querySelector('.textinput');"
+                + "input.value ='" + text + "';"
+                + JavaScriptHelper.Blur("input")
+                + "var output = document.querySelector('.text-dst');"
+                + "function trf(){ " +
+                JavaScriptHelper.Callback("output")
+                + "output.removeEventListener('change', trf); }"
+                + "output.addEventListener('change', trf)";
         }
+
+        public string GetScript()
+        {
+            return JavaScriptHelper.Callback("document.querySelector('.text-dst')");
+        }
+
         private class TencentTranslateObject
         {
             public TencentTranslate? Response { get; set; }

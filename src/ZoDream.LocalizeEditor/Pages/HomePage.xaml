@@ -30,11 +30,13 @@
                     <MenuItem Header="xlf" Command="{Binding ImportCommand}"/>
                     <MenuItem Header="json" Command="{Binding ImportCommand}"/>
                     <MenuItem Header="resw" Command="{Binding ImportCommand}"/>
+                    <MenuItem Header="数据库" Command="{Binding ImportDatabaseCommand}"/>
                 </MenuItem>
                 <MenuItem Header="导出">
                     <MenuItem Header="xlf" Command="{Binding ExportCommand}"/>
                     <MenuItem Header="json" Command="{Binding ExportCommand}"/>
                     <MenuItem Header="resw" Command="{Binding ExportCommand}"/>
+                    <MenuItem Header="数据库" Command="{Binding ExportDatabaseCommand}"/>
                 </MenuItem>
                 <Separator/>
                 <MenuItem Header="设置" Command="{Binding SettingCommand}"/>
@@ -43,6 +45,7 @@
             </MenuItem>
             <MenuItem Header="编辑">
                 <MenuItem Header="快速添加" Command="{Binding AddCommand}"/>
+                <MenuItem Header="打开浏览器" Command="{Binding OpenBrowserCommand}"/>
             </MenuItem>
             <MenuItem Header="帮助">
                 <MenuItem Header="查看帮助"/>
@@ -120,6 +123,51 @@
                       Grid.Row="1"
                       VerticalContentAlignment="Center"/>
             </Grid>
+        </ctl:ContentDialog>
+        <ctl:ContentDialog Title="数据库配置"
+           IsOpen="{Binding DatabaseDialogVisible}"
+            PrimaryCommand="{Binding DatabaseDialogConfirmCommand}"
+            SecondaryCommand="{Binding DialogCancelCommand}"
+            Grid.RowSpan="3">
+            <ScrollViewer>
+                <StackPanel>
+                    <TextBlock Text="数据库类型" Style="{StaticResource InputHeaderStyle}"/>
+                    <ComboBox SelectedItem="{Binding DatabaseType,Mode=TwoWay}"
+                          ItemsSource="{Binding DatabaseTypeItems}"
+                          Style="{StaticResource InputSelectStyle}"/>
+                    <TextBlock Text="服务器(ip:host)" Style="{StaticResource InputHeaderStyle}"/>
+                    <TextBox Text="{Binding DatabaseHost}" Style="{StaticResource InputEntryStyle}"/>
+                    <TextBlock Text="账号" Style="{StaticResource InputHeaderStyle}"/>
+                    <TextBox Text="{Binding DatabaseUsername}" Style="{StaticResource InputEntryStyle}"/>
+                    <TextBlock Text="密码" Style="{StaticResource InputHeaderStyle}"/>
+                    <TextBox Text="{Binding DatabasePassword}" Style="{StaticResource InputEntryStyle}"/>
+                    <TextBlock Text="数据库" Style="{StaticResource InputHeaderStyle}"/>
+                    <ComboBox Text="{Binding DatabaseSchema,Mode=TwoWay}"
+                              ItemsSource="{Binding DatabaseSchemaItems}"
+                              IsEditable="True"
+                              Style="{StaticResource InputSelectStyle}"/>
+                    <TextBlock Text="数据表" Style="{StaticResource InputHeaderStyle}"/>
+                    <ComboBox Text="{Binding DatabaseTable,Mode=TwoWay}"
+                              ItemsSource="{Binding DatabaseTableItems}"
+                              IsEditable="True"
+                              Style="{StaticResource InputSelectStyle}"/>
+                    <TextBlock Text="ID字段" Style="{StaticResource InputHeaderStyle}"/>
+                    <ComboBox Text="{Binding DatabaseID,Mode=TwoWay}"
+                              ItemsSource="{Binding DatabaseFieldItems}"
+                              IsEditable="True"
+                              Style="{StaticResource InputSelectStyle}"/>
+                    <TextBlock Text="原文字段" Style="{StaticResource InputHeaderStyle}"/>
+                    <ComboBox Text="{Binding DatabaseSource,Mode=TwoWay}"
+                              ItemsSource="{Binding DatabaseFieldItems}"
+                              IsEditable="True"
+                              Style="{StaticResource InputSelectStyle}"/>
+                    <TextBlock Text="译文字段" Style="{StaticResource InputHeaderStyle}"/>
+                    <ComboBox Text="{Binding DatabaseTarget,Mode=TwoWay}"
+                              ItemsSource="{Binding DatabaseFieldItems}"
+                              IsEditable="True"
+                              Style="{StaticResource InputSelectStyle}"/>
+                </StackPanel>
+            </ScrollViewer>
         </ctl:ContentDialog>
     </Grid>
 </Page>

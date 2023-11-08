@@ -25,6 +25,13 @@ namespace ZoDream.LocalizeEditor.Pages
         public InputWindow()
         {
             InitializeComponent();
+            Height = ViewModel.WindowHeight;
+            ViewModel.PropertyChanged += (_, e) => {
+                if (e.PropertyName == nameof(ViewModel.WindowHeight))
+                {
+                    Height = ViewModel.WindowHeight;
+                }
+            };
             ViewModel.AddListener(() => {
                 OnCreate?.Invoke(this, ViewModel.Data);
             });

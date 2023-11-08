@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 using System.Xml.Linq;
+using ZoDream.LocalizeEditor.Pages;
 using ZoDream.Shared.Models;
 using ZoDream.Shared.Readers;
 using ZoDream.Shared.Storage;
@@ -66,6 +67,8 @@ namespace ZoDream.LocalizeEditor.ViewModels
                 _baseWindow = value;
             }
         }
+
+        private BrowserWindow? _translatorBrowser;
 
         public string Title {
             set {
@@ -168,11 +171,13 @@ namespace ZoDream.LocalizeEditor.ViewModels
         public void Dispose()
         {
             _baseWindow = null;
+            _translatorBrowser = null;
             Packages.Clear();
         }
 
         public void Exit()
         {
+            _translatorBrowser?.Close();
             _baseWindow?.Close();
             Application.Current.Shutdown();
         }
@@ -180,6 +185,13 @@ namespace ZoDream.LocalizeEditor.ViewModels
         public void AddPackage(LanguagePackage package)
         {
             CurrentPackage = package;
+        }
+
+
+        public void OpenBrowser()
+        {
+            _translatorBrowser ??= new BrowserWindow();
+            _translatorBrowser.Show();
         }
 
         public async Task<string> TranslateAsync(string text)
@@ -198,8 +210,16 @@ namespace ZoDream.LocalizeEditor.ViewModels
             {
                 return string.Empty;
             }
-            return await client.Translate(PackageSourceLanguage,
+            if (client is not IBrowserTranslator browserClient)
+            {
+                return await client.Translate(PackageSourceLanguage,
                 PackageLanguage, text);
+            }
+            OpenBrowser();
+            _translatorBrowser!.Translator = browserClient;
+            await _translatorBrowser.NavigateAsync(browserClient.EntryURL);
+            return await _translatorBrowser.ExecuteScriptAsync(browserClient.TranslateScript(PackageSourceLanguage,
+                PackageLanguage, text));
         }
 
 
@@ -259,6 +279,5 @@ namespace ZoDream.LocalizeEditor.ViewModels
                 _ => null,
             };
         }
-   
     }
 }
