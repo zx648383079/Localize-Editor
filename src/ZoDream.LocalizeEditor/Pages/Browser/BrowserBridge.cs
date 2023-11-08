@@ -18,7 +18,6 @@ namespace ZoDream.LocalizeEditor.Pages
         public void Callback(string content)
         {
             ContentReady?.Invoke(content);
-            Debug.WriteLine(content);
         }
     }
 

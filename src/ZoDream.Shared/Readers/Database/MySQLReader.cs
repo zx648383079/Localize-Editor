@@ -46,7 +46,7 @@ namespace ZoDream.Shared.Readers.Database
             var package = new LanguagePackage("en");
             using var connection = new MySqlConnection(connectionString);
             connection.Open();
-            var sql = $"SELECT {IdKey},{SourceKey},{TargetKey} FROM `{TableName}`";
+            var sql = $"SELECT `{IdKey}`,`{SourceKey}`,`{TargetKey}` FROM `{TableName}`";
             var cmd = new MySqlCommand(sql, connection);
             using var reader = cmd.ExecuteReader();
             while (reader.Read())
@@ -70,9 +70,14 @@ namespace ZoDream.Shared.Readers.Database
         {
             using var connection = new MySqlConnection(connectionString);
             connection.Open();
-            var sql = $"UPDATE `{TableName}` SET {TargetKey}=@target WHERE {IdKey}=@id";
+            var sql = $"UPDATE `{TableName}` SET `{TargetKey}`=@target WHERE `{IdKey}`=@id";
             foreach (var item in package.Items)
             {
+                // TODO 空跳过
+                if (string.IsNullOrWhiteSpace(item.Target))
+                {
+                    continue;
+                }
                 var cmd = new MySqlCommand(sql, connection);
                 cmd.Parameters.Add(new MySqlParameter("@target", item.Target));
                 cmd.Parameters.Add(new MySqlParameter("@id", item.Id));

@@ -8,7 +8,7 @@
       xmlns:local="clr-namespace:ZoDream.LocalizeEditor.Pages"
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
-      Title="HomePage">
+      Title="主界面">
 
     <Page.DataContext>
         <vm:HomeViewModel/>
@@ -17,10 +17,11 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="40"/>
+            <RowDefinition Height="40"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
-        <Menu VerticalAlignment="Center" Background="Transparent">
+        <Menu VerticalAlignment="Center" Background="Transparent" Visibility="{Binding IsLoading, Converter={StaticResource ToggleCvt}, ConverterParameter=False}">
             <MenuItem Header="文件">
                 <MenuItem Header="新建" Command="{Binding NewCommand}"/>
                 <MenuItem Header="打开" Command="{Binding OpenCommand}"/>
@@ -46,6 +47,8 @@
             <MenuItem Header="编辑">
                 <MenuItem Header="快速添加" Command="{Binding AddCommand}"/>
                 <MenuItem Header="打开浏览器" Command="{Binding OpenBrowserCommand}"/>
+                <MenuItem Header="翻译全部" Command="{Binding TranslatePackageCommand}"/>
+                <MenuItem Header="从选中开始翻译" Command="{Binding TranslateFromCommand}"/>
             </MenuItem>
             <MenuItem Header="帮助">
                 <MenuItem Header="查看帮助"/>
@@ -53,64 +56,66 @@
                 <MenuItem Header="关于"/>
             </MenuItem>
         </Menu>
-        <Grid Grid.Row="1">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="40"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="40"/>
-                    <ColumnDefinition Width="3*"/>
-                    <ColumnDefinition Width="40"/>
-                    <ColumnDefinition Width="40"/>
-                    <ColumnDefinition Width="40"/>
-                    <ColumnDefinition Width="auto" MinWidth="60"/>
-                    <ColumnDefinition Width="40"/>
-                </Grid.ColumnDefinitions>
-                <TextBlock Text="搜索" Style="{StaticResource CenterTb}"/>
-                <TextBox Text="{Binding Keywords}" MaxLines="1" Grid.Column="1"/>
-                <Button Grid.Column="2" Content="&#xE721;" Command="{Binding SearchCommand}" Style="{StaticResource IconBtn}"/>
-                <Button Command="{Binding AddCommand}" Grid.Column="3" 
-                        Content="&#xE109;" Style="{StaticResource IconBtn}"/>
-                <TextBlock Text="语言" Grid.Column="4" Style="{StaticResource CenterTb}"/>
-                <Grid Grid.Column="5">
-                    <Grid.RowDefinitions>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                    </Grid.RowDefinitions>
-                    <TextBlock Text="{Binding SourceLang}" FontSize="10" VerticalAlignment="Center"/>
-                    <TextBlock Text="{Binding TargetLang}" Grid.Row="1" FontSize="10" VerticalAlignment="Center"/>
-                </Grid>
-                <Button Command="{Binding ChangeCommand}" Grid.Column="6" 
-                    Content="&#xE13C;" Style="{StaticResource IconBtn}"/>
+        <StackPanel Grid.RowSpan="2" HorizontalAlignment="Center" 
+                    Orientation="Horizontal"
+                    Height="40"
+                    VerticalAlignment="Center" Visibility="{Binding IsLoading, Converter={StaticResource ToggleCvt}}">
+            <Button Content="&#xE103;" Style="{StaticResource IconBtn}" 
+                    ToolTip="停止当前操作"
+                    Command="{Binding StopCommand}" Width="40"/>
+        </StackPanel>
+        <Grid Grid.Row="1" Visibility="{Binding IsLoading, Converter={StaticResource ToggleCvt}, ConverterParameter=False}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="40"/>
+                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition Width="40"/>
+                <ColumnDefinition Width="40"/>
+                <ColumnDefinition Width="40"/>
+                <ColumnDefinition Width="auto" MinWidth="60"/>
+                <ColumnDefinition Width="40"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="搜索" Style="{StaticResource CenterTb}"/>
+            <TextBox Text="{Binding Keywords}" MaxLines="1" Grid.Column="1"/>
+            <Button Grid.Column="2" Content="&#xE721;" Command="{Binding SearchCommand}" Style="{StaticResource IconBtn}"/>
+            <Button Command="{Binding AddCommand}" Grid.Column="3" 
+            Content="&#xE109;" Style="{StaticResource IconBtn}"/>
+            <TextBlock Text="语言" Grid.Column="4" Style="{StaticResource CenterTb}"/>
+            <Grid Grid.Column="5">
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <TextBlock Text="{Binding SourceLang}" FontSize="10" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding TargetLang}" Grid.Row="1" FontSize="10" VerticalAlignment="Center"/>
             </Grid>
-            <ListView x:Name="UnitListBox" 
-                      Grid.Row="1" ItemsSource="{Binding FilteredItems,Mode=OneWay}"
-                      SelectedItem="{Binding UnitSelectedItem,Mode=TwoWay}"
-                      MouseDoubleClick="UnitListBox_MouseDoubleClick">
-                <ListView.ContextMenu>
-                    <ContextMenu>
-                        <MenuItem Header="删除" Command="{Binding RemoveCommand}"/>
-                    </ContextMenu>
-                </ListView.ContextMenu>
-                <ListView.View>
-                    <GridView>
-                        <GridViewColumn Header="{Binding SourceHeader}" DisplayMemberBinding="{Binding Source}" 
-                                        Width="160"/>
-                        <GridViewColumn Header="{Binding TargetHeader}" 
-                                        DisplayMemberBinding="{Binding Target}" Width="200"/>
-                        <GridViewColumn Header="ID" DisplayMemberBinding="{Binding Id}" Width="80"/>
-                    </GridView>
-                </ListView.View>
-            </ListView>
+            <Button Command="{Binding ChangeCommand}" Grid.Column="6" 
+                Content="&#xE13C;" Style="{StaticResource IconBtn}"/>
         </Grid>
+        <ListView x:Name="UnitListBox" 
+              Grid.Row="2" ItemsSource="{Binding FilteredItems,Mode=OneWay}"
+              SelectedItem="{Binding UnitSelectedItem,Mode=TwoWay}"
+              MouseDoubleClick="UnitListBox_MouseDoubleClick">
+            <ListView.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="删除" Command="{Binding RemoveCommand}"/>
+                </ContextMenu>
+            </ListView.ContextMenu>
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="{Binding SourceHeader}" DisplayMemberBinding="{Binding Source}" 
+                            Width="160"/>
+                    <GridViewColumn Header="{Binding TargetHeader}" 
+                            DisplayMemberBinding="{Binding Target}" Width="200"/>
+                    <GridViewColumn Header="ID" DisplayMemberBinding="{Binding Id}" Width="80"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
 
         <ctl:ContentDialog Title="切换目标语言" SubTitle="选择目标语言"
                    IsOpen="{Binding DialogVisible}"
                     PrimaryCommand="{Binding DialogConfirmCommand}"
                     SecondaryCommand="{Binding DialogCancelCommand}"
-                   Grid.RowSpan="3">
+                   Grid.RowSpan="4">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="32"/>
@@ -129,7 +134,7 @@
             PrimaryCommand="{Binding DatabaseDialogConfirmCommand}"
             SecondaryCommand="{Binding DialogCancelCommand}"
             DialogHeight="400"
-            Grid.RowSpan="3">
+            Grid.RowSpan="4">
             <ScrollViewer>
                 <StackPanel>
                     <TextBlock Text="数据库类型" Style="{StaticResource InputHeaderStyle}"/>
@@ -170,6 +175,7 @@
                 </StackPanel>
             </ScrollViewer>
         </ctl:ContentDialog>
-        <ctl:LoadingDialog IsLoading="{Binding IsLoading,Mode=OneWay}" Grid.RowSpan="3"/>
+        <ctl:LoadingDialog IsLoading="{Binding IsLoading,Mode=OneWay}" Grid.Row="2" 
+                           Grid.RowSpan="2"/>
     </Grid>
 </Page>

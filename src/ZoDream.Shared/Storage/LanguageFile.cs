@@ -23,7 +23,7 @@ namespace ZoDream.Shared.Storage
                 {
                     continue;
                 }
-                var args = line.Trim().Split(new char[] { ' ' }, 2, StringSplitOptions.RemoveEmptyEntries);
+                var args = line.Trim().Split(new char[] { ' ', '\t' }, 2, StringSplitOptions.RemoveEmptyEntries);
                 if (args.Length < 2) 
                 {
                     data.Push(args[0]);

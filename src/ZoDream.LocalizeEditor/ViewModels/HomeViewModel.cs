@@ -1,8 +1,10 @@
-﻿using System;
+﻿using Google.Protobuf.WellKnownTypes;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.IO.Packaging;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
@@ -10,6 +12,7 @@ using ZoDream.Shared.Extensions;
 using ZoDream.Shared.Models;
 using ZoDream.Shared.Readers;
 using ZoDream.Shared.Routes;
+using ZoDream.Shared.Translators;
 using ZoDream.Shared.ViewModel;
 
 namespace ZoDream.LocalizeEditor.ViewModels
@@ -38,9 +41,11 @@ namespace ZoDream.LocalizeEditor.ViewModels
             ImportDatabaseCommand = new RelayCommand(TapImportDatabase);
             ExportDatabaseCommand = new RelayCommand(TapExportDatabase);
             DatabaseDialogConfirmCommand = new RelayCommand(TapDatabaseDialogConfirm);
+            TranslatePackageCommand = new RelayCommand(TapTranslatePackage);
+            TranslateFromCommand = new RelayCommand(TapTranslateFrom);
+            StopCommand = new RelayCommand(TapStop);
             DatabaseType = DatabaseTypeItems[0];
             FilteredItems = CollectionViewSource.GetDefaultView(Items);
-
             FilteredItems.Filter = item => {
                 if (item is not UnitViewModel o)
                 {
@@ -351,6 +356,61 @@ namespace ZoDream.LocalizeEditor.ViewModels
                 package.Items.Add(item.Clone<UnitItem>());
             }
             App.ViewModel.AddPackage(package);
+        }
+
+        public async Task TranslatePackageAsync(int begin = 0)
+        {
+            var app = App.ViewModel;
+            var client = app.GetTranslator();
+            if (client == null)
+            {
+                app.DispatcherQueue.Invoke(() => {
+                    MessageBox.Show("翻译插件未配置");
+                });
+                return;
+            }
+            IsLoading = true;
+            TokenSource?.Cancel();
+            TokenSource = new CancellationTokenSource();
+            var token = TokenSource.Token;
+            if (!app.Option.UseBrowser || client is not IBrowserTranslator browserClient)
+            {
+                var res = await client.TranslateAsync(SourceLang, ReaderPackage, token);
+                app.DispatcherQueue.Invoke(() => {
+                    if (res != null)
+                    {
+                        Merge(res.Items, Items.Count == 0);
+                    }
+                    IsLoading = false;
+                });
+                return ;
+            }
+            var browser = app.OpenBrowser();
+            browser.Translator = browserClient;
+            await browser.NavigateAsync(browserClient.EntryURL);
+            for (int i = Math.Max(0, begin); i < Items.Count; i++)
+            {
+                if (token.IsCancellationRequested)
+                {
+                    break;
+                }
+                var item = Items[i];
+                if (!string.IsNullOrWhiteSpace(item.Target) ||
+                    string.IsNullOrWhiteSpace(item.Source))
+                {
+                    continue;
+                }
+                var res = await browser.ExecuteScriptAsync(browserClient.TranslateScript(SourceLang,
+                TargetLang, item.Source));
+                app.DispatcherQueue.Invoke(() => {
+                    item.Target = res;
+                    UnitSelectedItem = item;
+                });
+            }
+            app.DispatcherQueue.Invoke(() => 
+            {
+                IsLoading = false;
+            });
         }
 
         public void ApplyExitAttributes()

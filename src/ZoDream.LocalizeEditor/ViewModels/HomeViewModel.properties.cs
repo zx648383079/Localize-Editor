@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Threading;
 using System.Windows.Data;
 using ZoDream.Shared.Models;
 
@@ -10,7 +11,9 @@ namespace ZoDream.LocalizeEditor.ViewModels
     public partial class HomeViewModel
     {
 
-        private bool isLoading;
+        private CancellationTokenSource? TokenSource;
+
+        private bool isLoading = false;
 
         public bool IsLoading {
             get => isLoading;

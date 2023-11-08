@@ -1,8 +1,10 @@
-﻿using System;
+﻿using MySqlX.XDevAPI;
+using System;
 using System.Windows;
 using System.Windows.Input;
 using ZoDream.LocalizeEditor.Pages;
 using ZoDream.Shared.Routes;
+using ZoDream.Shared.Translators;
 
 namespace ZoDream.LocalizeEditor.ViewModels
 {
@@ -31,10 +33,45 @@ namespace ZoDream.LocalizeEditor.ViewModels
         public ICommand ImportDatabaseCommand {  get; private set; }
         public ICommand ExportDatabaseCommand {  get; private set; }
 
+        public ICommand TranslatePackageCommand { get; private set; }
+
+        public ICommand TranslateFromCommand {  get; private set; }
+        public ICommand StopCommand { get; private set; }
+
+        private void TapTranslatePackage(object? _)
+        {
+            if (App.ViewModel.Option.UseBrowser && 
+                MessageBox.Show("请先打开浏览器确认语言是否配置正确？已确认则继续") == MessageBoxResult.Cancel)
+            {
+                return;
+            }
+            _ = TranslatePackageAsync();
+        }
+
+        private void TapTranslateFrom(object? _)
+        {
+            if (App.ViewModel.Option.UseBrowser &&
+                MessageBox.Show("请先打开浏览器确认语言是否配置正确？已确认则继续") == MessageBoxResult.Cancel)
+            {
+                return;
+            }
+            _ = TranslatePackageAsync(UnitSelectedItem is null ? 0 : Items.IndexOf(UnitSelectedItem));
+        }
+
+        private void TapStop(object? _)
+        {
+            TokenSource?.Cancel();
+            IsLoading = false;
+        }
 
         private void TapOpenBrowser(object? _)
         {
-            App.ViewModel.OpenBrowser();
+            var browser = App.ViewModel.OpenBrowser();
+            if (App.ViewModel.GetTranslator() is IBrowserTranslator client)
+            {
+                browser.Translator = client;
+                _ = browser.NavigateAsync(client.EntryURL);
+            }
         }
 
         private void TapSearch(object? _)

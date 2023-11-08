@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using ZoDream.Shared.Extensions;
 using ZoDream.Shared.Models;
@@ -21,13 +22,15 @@ namespace ZoDream.Shared.Translators
 
         public string EntryURL => "https://fanyi.qq.com/";
 
-        public async Task<string> Translate(string sourceLang, string targetLang, string text)
+        public async Task<string> TranslateAsync(string sourceLang, string targetLang, 
+            string text, CancellationToken token = default)
         {
             var items = await RequestAsync(sourceLang, targetLang, new string[] { text });
             return items.FirstOrDefault();
         }
 
-        public async Task<LanguagePackage> Translate(string targetLang, LanguagePackage package)
+        public async Task<LanguagePackage> TranslateAsync(string targetLang, 
+            LanguagePackage package, CancellationToken token = default)
         {
             var items = await RequestAsync(package.Language, targetLang, package.Items.Select(i => i.Source));
             return new LanguagePackage(package.Language, targetLang)

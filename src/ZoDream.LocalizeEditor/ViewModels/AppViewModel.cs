@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
@@ -13,6 +14,7 @@ using ZoDream.Shared.Models;
 using ZoDream.Shared.Readers;
 using ZoDream.Shared.Storage;
 using ZoDream.Shared.Translators;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace ZoDream.LocalizeEditor.ViewModels
 {
@@ -82,7 +84,7 @@ namespace ZoDream.LocalizeEditor.ViewModels
 
         public string Version {
             get {
-                var val = Application.ResourceAssembly?.GetName()?.Version?.ToString();
+                var val = App.ResourceAssembly?.GetName()?.Version?.ToString();
                 return string.IsNullOrEmpty(val) ? "-" : val;
             }
         }
@@ -114,7 +116,7 @@ namespace ZoDream.LocalizeEditor.ViewModels
         /// <summary>
         /// UI线程.
         /// </summary>
-        public Dispatcher DispatcherQueue => Application.Current.Dispatcher;
+        public Dispatcher DispatcherQueue => App.Current.Dispatcher;
 
 
 
@@ -179,7 +181,7 @@ namespace ZoDream.LocalizeEditor.ViewModels
         {
             _translatorBrowser?.Close();
             _baseWindow?.Close();
-            Application.Current.Shutdown();
+            App.Current.Shutdown();
         }
 
         public void AddPackage(LanguagePackage package)
@@ -188,10 +190,17 @@ namespace ZoDream.LocalizeEditor.ViewModels
         }
 
 
-        public void OpenBrowser()
+        public BrowserWindow OpenBrowser()
         {
-            _translatorBrowser ??= new BrowserWindow();
+            if (_translatorBrowser is null)
+            {
+                _translatorBrowser = new BrowserWindow();
+                _translatorBrowser.Closed += (s, _) => {
+                    _translatorBrowser = null;
+                };
+            }
             _translatorBrowser.Show();
+            return _translatorBrowser;
         }
 
         public async Task<string> TranslateAsync(string text)
@@ -212,7 +221,7 @@ namespace ZoDream.LocalizeEditor.ViewModels
             }
             if (!Option.UseBrowser || client is not IBrowserTranslator browserClient)
             {
-                return await client.Translate(PackageSourceLanguage,
+                return await client.TranslateAsync(PackageSourceLanguage,
                 PackageLanguage, text);
             }
             OpenBrowser();
@@ -220,6 +229,42 @@ namespace ZoDream.LocalizeEditor.ViewModels
             await _translatorBrowser.NavigateAsync(browserClient.EntryURL);
             return await _translatorBrowser.ExecuteScriptAsync(browserClient.TranslateScript(PackageSourceLanguage,
                 PackageLanguage, text));
+        }
+
+
+        public async Task<LanguagePackage?> TranslatePackageAsync(LanguagePackage package, 
+            CancellationToken token = default)
+        {
+            var client = GetTranslator();
+            if (client == null)
+            {
+                DispatcherQueue.Invoke(() => {
+                    MessageBox.Show("翻译插件未配置");
+                });
+                return null;
+            }
+            if (!Option.UseBrowser || client is not IBrowserTranslator browserClient)
+            {
+                return await client.TranslateAsync(PackageSourceLanguage, package, token);
+            }
+            OpenBrowser();
+            _translatorBrowser!.Translator = browserClient;
+            await _translatorBrowser.NavigateAsync(browserClient.EntryURL);
+            foreach (var item in package.Items)
+            {
+                if (token.IsCancellationRequested)
+                {
+                    break;
+                }
+                if (!string.IsNullOrWhiteSpace(item.Target) || 
+                    string.IsNullOrWhiteSpace(item.Source))
+                {
+                    continue;
+                }
+                item.Target = await _translatorBrowser.ExecuteScriptAsync(browserClient.TranslateScript(PackageSourceLanguage,
+                PackageLanguage, item.Source));
+            }
+            return package;
         }
 
 
