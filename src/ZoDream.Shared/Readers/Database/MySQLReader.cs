@@ -83,7 +83,14 @@ namespace ZoDream.Shared.Readers.Database
         public async Task<string[]> LoadSchemaAsync(string host, string username, string password)
         {
             using var connection = new MySqlConnection(ConnectStringBuilder(host, username, password, "information_schema"));
-            connection.Open();
+            try
+            {
+                connection.Open();
+            }
+            catch
+            {
+                return Array.Empty<string>();
+            }
             var sql = "SHOW DATABASES";
             var cmd = new MySqlCommand(sql, connection);
             using var reader = cmd.ExecuteReader();
@@ -105,7 +112,14 @@ namespace ZoDream.Shared.Readers.Database
         {
             using var connection = new MySqlConnection(ConnectStringBuilder(host, 
                 username, password, schema));
-            connection.Open();
+            try
+            {
+                connection.Open();
+            }
+            catch
+            {
+                return Array.Empty<string>();
+            }
             var sql = "SHOW TABLES";
             var cmd = new MySqlCommand(sql, connection);
             using var reader = cmd.ExecuteReader();
@@ -121,8 +135,15 @@ namespace ZoDream.Shared.Readers.Database
         {
             using var connection = new MySqlConnection(ConnectStringBuilder(host,
                 username, password, schema));
-            connection.Open();
-            var sql = $"SHOW COLUMNS FROM `${table}`";
+            try
+            {
+                connection.Open();
+            }
+            catch
+            {
+                return Array.Empty<string>();
+            }
+            var sql = $"SHOW COLUMNS FROM `{table}`";
             var cmd = new MySqlCommand(sql, connection);
             using var reader = cmd.ExecuteReader();
             var items = new List<string>();

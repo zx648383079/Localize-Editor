@@ -71,21 +71,30 @@ namespace ZoDream.LocalizeEditor.ViewModels
 
         public string DatabasePassword {
             get => databasePassword;
-            set => Set(ref databasePassword, value);
+            set {
+                Set(ref databasePassword, value);
+                LoadSchemaAsync();
+            }
         }
 
         private string databaseSchema = string.Empty;
 
         public string DatabaseSchema {
             get => databaseSchema;
-            set => Set(ref databaseSchema, value);
+            set {
+                Set(ref databaseSchema, value);
+                LoadTableAsync();
+            }
         }
 
         private string databaseTable = string.Empty;
 
         public string DatabaseTable {
             get => databaseTable;
-            set => Set(ref databaseTable, value);
+            set {
+                Set(ref databaseTable, value);
+                LoadFieldAsync();
+            }
         }
 
         private string databaseID = "id";
@@ -125,8 +134,8 @@ namespace ZoDream.LocalizeEditor.ViewModels
             {
                 return;
             }
-            DialogVisible = false;
-            if (DialogCallbackFn is null)
+            DatabaseDialogVisible = false;
+            if (DatabaseDialogCallbackFn is null)
             {
                 return;
             }
@@ -138,6 +147,47 @@ namespace ZoDream.LocalizeEditor.ViewModels
             DatabaseDialogCallbackFn?.Invoke(reader.ConnectStringBuilder(DatabaseHost, DatabaseUsername, DatabasePassword,
                     DatabaseSchema, DatabaseTable, DatabaseID, DatabaseSource, DatabaseTarget), 
                     reader);
+        }
+
+        private async void LoadSchemaAsync()
+        {
+            var reader = DatabaseInstance;
+            if (reader is null)
+            {
+                return;
+            }
+            var items = await reader.LoadSchemaAsync(DatabaseHost, DatabaseUsername, DatabasePassword);
+            App.Current.Dispatcher.Invoke(() => {
+                DatabaseSchemaItems = items;
+            });
+        }
+
+        private async void LoadTableAsync()
+        {
+            var reader = DatabaseInstance;
+            if (reader is null)
+            {
+                return;
+            }
+            var items = await reader.LoadTableAsync(DatabaseHost, DatabaseUsername, 
+                DatabasePassword, DatabaseSchema);
+            App.Current.Dispatcher.Invoke(() => {
+                DatabaseTableItems = items;
+            });
+        }
+
+        private async void LoadFieldAsync()
+        {
+            var reader = DatabaseInstance;
+            if (reader is null)
+            {
+                return;
+            }
+            var items = await reader.LoadFieldAsync(DatabaseHost, DatabaseUsername,
+                DatabasePassword, DatabaseSchema, DatabaseTable);
+            App.Current.Dispatcher.Invoke(() => {
+                DatabaseFieldItems = items;
+            });
         }
 
         private IDatabaseReader? DatabaseInstance => DatabaseType switch

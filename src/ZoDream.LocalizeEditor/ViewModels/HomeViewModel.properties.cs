@@ -10,6 +10,12 @@ namespace ZoDream.LocalizeEditor.ViewModels
     public partial class HomeViewModel
     {
 
+        private bool isLoading;
+
+        public bool IsLoading {
+            get => isLoading;
+            set => Set(ref isLoading, value);
+        }
 
 
         private string sourceLang = string.Empty;

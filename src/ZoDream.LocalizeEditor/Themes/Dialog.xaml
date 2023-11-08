@@ -136,4 +136,57 @@
             </Setter.Value>
         </Setter>
     </Style>
+
+
+    <Style x:Key="LoadingDot" TargetType="Ellipse">
+        <Setter Property="Width" Value="20"/>
+        <Setter Property="Height" Value="20"/>
+        <Setter Property="Fill" Value="{DynamicResource WindowHostBrush}"/>
+        <Setter Property="RenderTransform">
+            <Setter.Value>
+                <TranslateTransform X="0" Y="0"/>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <PowerEase x:Key="LoadingEase" Power="2" EasingMode="EaseInOut"/>
+
+    <Style TargetType="{x:Type ctl:LoadingDialog}">
+        <Setter Property="Background" Value="{DynamicResource TranspantBackground}"/>
+        <Setter Property="Visibility" Value="Collapsed"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ctl:LoadingDialog}">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <Canvas Width="200" Height="200" HorizontalAlignment="Center" 
+                                VerticalAlignment="Center">
+                            <Canvas.Triggers>
+                                <EventTrigger RoutedEvent="Loaded">
+                                    <BeginStoryboard>
+                                        <Storyboard RepeatBehavior="Forever" 
+                                                    Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)">
+                                            <DoubleAnimation Storyboard.TargetName="Dot1" To="-50" BeginTime="0:0:0.0" Duration="0:0:0.5" AutoReverse="True" EasingFunction="{StaticResource LoadingEase}"/>
+                                            <DoubleAnimation Storyboard.TargetName="Dot2" To="-50" BeginTime="0:0:0.1" Duration="0:0:0.5" AutoReverse="True" EasingFunction="{StaticResource LoadingEase}"/>
+                                            <DoubleAnimation Storyboard.TargetName="Dot3" To="-50" BeginTime="0:0:0.2" Duration="0:0:0.5" AutoReverse="True" EasingFunction="{StaticResource LoadingEase}"/>
+                                            <DoubleAnimation Storyboard.TargetName="Dot4" To="-50" BeginTime="0:0:0.3" Duration="0:0:0.5" AutoReverse="True" EasingFunction="{StaticResource LoadingEase}"/>
+                                            <DoubleAnimation Storyboard.TargetName="Dot5" To="-50" BeginTime="0:0:0.4" Duration="0:0:0.5" AutoReverse="True" EasingFunction="{StaticResource LoadingEase}"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger>
+                            </Canvas.Triggers>
+                            <TextBlock Text="Loading" FontSize="30"/>
+
+                            <Ellipse x:Name="Dot1" Canvas.Top="30" Canvas.Left="30" Style="{StaticResource LoadingDot}"/>
+                            <Ellipse x:Name="Dot2" Canvas.Top="30" Canvas.Left="60" Style="{StaticResource LoadingDot}"/>
+                            <Ellipse x:Name="Dot3" Canvas.Top="30" Canvas.Left="90" Style="{StaticResource LoadingDot}"/>
+                            <Ellipse x:Name="Dot4" Canvas.Top="30" Canvas.Left="120" Style="{StaticResource LoadingDot}"/>
+                            <Ellipse x:Name="Dot5" Canvas.Top="30" Canvas.Left="150" Style="{StaticResource LoadingDot}"/>
+                        </Canvas>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 </ResourceDictionary>

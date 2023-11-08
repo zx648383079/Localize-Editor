@@ -249,7 +249,9 @@ namespace ZoDream.LocalizeEditor.ViewModels
             {
                 return;
             }
+            IsLoading = true;
             var package = await reader.ReadAsync(fileName);
+            IsLoading = false;
             if (package is null)
             {
                 return;
@@ -314,8 +316,10 @@ namespace ZoDream.LocalizeEditor.ViewModels
             }
             var package = ReaderPackage;
             package.FileName = fileName;
+            IsLoading = true;
             await reader.WriteAsync(fileName, package);
             App.ViewModel.DispatcherQueue.Invoke(() => {
+                IsLoading = false;
                 MessageBox.Show("保存成功");
             });
         }

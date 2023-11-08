@@ -128,6 +128,7 @@
            IsOpen="{Binding DatabaseDialogVisible}"
             PrimaryCommand="{Binding DatabaseDialogConfirmCommand}"
             SecondaryCommand="{Binding DialogCancelCommand}"
+            DialogHeight="400"
             Grid.RowSpan="3">
             <ScrollViewer>
                 <StackPanel>
@@ -169,5 +170,6 @@
                 </StackPanel>
             </ScrollViewer>
         </ctl:ContentDialog>
+        <ctl:LoadingDialog IsLoading="{Binding IsLoading,Mode=OneWay}" Grid.RowSpan="3"/>
     </Grid>
 </Page>
