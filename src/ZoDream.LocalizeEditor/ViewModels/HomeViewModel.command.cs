@@ -59,22 +59,23 @@ namespace ZoDream.LocalizeEditor.ViewModels
 
         private void TapTranslatePackage(object? _)
         {
-            if (App.ViewModel.Option.UseBrowser && 
-                MessageBox.Show("请先打开浏览器确认语言是否配置正确？已确认则继续") == MessageBoxResult.Cancel)
-            {
-                return;
-            }
-            _ = TranslatePackageAsync();
+            TapTranslate(false);
         }
 
         private void TapTranslateFrom(object? _)
         {
+            TapTranslate(true);
+        }
+
+        private void TapTranslate(bool isFrom = false)
+        {
             if (App.ViewModel.Option.UseBrowser &&
-                MessageBox.Show("请先打开浏览器确认语言是否配置正确？已确认则继续") == MessageBoxResult.Cancel)
+                MessageBox.Show("请先打开浏览器确认语言是否配置正确？已确认则继续", "提示", 
+                MessageBoxButton.OKCancel) == MessageBoxResult.Cancel)
             {
                 return;
             }
-            _ = TranslatePackageAsync(UnitSelectedItem is null ? 0 : Items.IndexOf(UnitSelectedItem));
+            _ = TranslatePackageAsync(!isFrom || UnitSelectedItem is null ? 0 : Items.IndexOf(UnitSelectedItem));
         }
 
         private void TapStop(object? _)

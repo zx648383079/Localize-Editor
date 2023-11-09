@@ -1,11 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace ZoDream.Shared.Translators
+﻿namespace ZoDream.Shared.Translators
 {
     public static class JavaScriptHelper
     {
+        public static string Value(string value)
+        {
+            value = value.Replace("'", "\\'");
+            return $"'{value}'";
+        }
+
+        public static string Value(string target, string value, bool isInput = false)
+        {
+            var tag = isInput ? "value" : "innerText";
+            return $"{target}.{tag}={Value(value)};";
+        }
 
         public static string Callback(string target, bool isInput = false)
         {
@@ -16,7 +23,7 @@ namespace ZoDream.Shared.Translators
         public static string Paste(string target, string text)
         {
             return "var data = new DataTransfer();"
-                + $"data.setData('text/plain', '{text}');" 
+                + $"data.setData('text/plain', {Value(text)});" 
                 + "var pasteEvent = new ClipboardEvent('paste', {clipboardData: data});" 
                 + "pasteEvent.initEvent('paste', true, false);"
                  + target + ".focus();"

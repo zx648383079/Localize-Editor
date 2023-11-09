@@ -61,6 +61,58 @@ namespace ZoDream.Shared.Extensions
             return -1;
         }
 
+        public static void AddLine(this IList<SourceLocation> items, string fileName, string line)
+        {
+            if (string.IsNullOrEmpty(fileName))
+            {
+                return;
+            }
+            foreach (var item in items)
+            {
+                if (item.FileName == fileName)
+                {
+                    item.Add(line);
+                    return;
+                }
+            }
+            items.Add(new SourceLocation(fileName, line));
+        }
+
+
+        public static void AddLine(this IList<SourceLocation> items, SourceLocation location)
+        {
+            if (string.IsNullOrEmpty(location.FileName))
+            {
+                return;
+            }
+            foreach (var item in items)
+            {
+                if (item.FileName == location.FileName)
+                {
+                    item.Add(location.LineNumber);
+                    return;
+                }
+            }
+            items.Add(location);
+        }
+
+        public static int IndexOf(this IList<SourceLocation> items, SourceLocation e)
+        {
+            return items.IndexOf(e.FileName);
+        }
+
+        public static int IndexOf(this IList<SourceLocation> items, string file)
+        {
+            for (int i = 0; i < items.Count; i++)
+            {
+                if (items[i].FileName == file)
+                {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
         public static void AddLine(this ITranslateUnit unit, List<SourceLocation> items)
         {
             if (items.Count == 0)

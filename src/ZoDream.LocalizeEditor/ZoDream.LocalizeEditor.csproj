@@ -8,6 +8,7 @@
 	<LangVersion>11</LangVersion>
 	<Authors>zodream</Authors>
 	<Company>zodream.cn</Company>
+	  <Version>1.0.0</Version>
 	<Copyright>Copyright © 2023 zodream.cn</Copyright>
 	<ApplicationIcon>localize.ico</ApplicationIcon>
   </PropertyGroup>

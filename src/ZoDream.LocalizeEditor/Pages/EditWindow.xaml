@@ -43,7 +43,16 @@
         </StackPanel>
         
 
-        <ListView ItemsSource="{Binding LocationItems}" Grid.Row="4" Grid.ColumnSpan="2">
+        <ListView ItemsSource="{Binding LocationItems}" 
+                  SelectedItem="{Binding LocationSelectedItem,Mode=TwoWay}"
+                  Grid.Row="4" Grid.ColumnSpan="2">
+            <ListView.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="新增" Command="{Binding AddFileCommand}"/>
+                    <MenuItem Header="编辑" Command="{Binding EditFileCommand}"/>
+                    <MenuItem Header="删除" Command="{Binding RemoveFileCommand}"/>
+                </ContextMenu>
+            </ListView.ContextMenu>
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="文件路径" DisplayMemberBinding="{Binding FileName}" Width="260"/>
@@ -58,8 +67,13 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="80"/>
             </Grid.ColumnDefinitions>
-            <Button Command="{Binding PreviousCommand}" Content="&#xE0C4;" Style="{StaticResource IconBtn}"/>
-            <Button Command="{Binding NextCommand}" Content="&#xE111;" Grid.Column="2" Style="{StaticResource IconBtn}"/>
+            <Button Command="{Binding PreviousCommand}"
+                    IsEnabled="{Binding PreviousEnabled}"
+                    Content="&#xE0C4;" 
+                    Style="{StaticResource IconBtn}"/>
+            <Button Command="{Binding NextCommand}" 
+                    IsEnabled="{Binding NextEnabled}"
+                    Content="&#xE111;" Grid.Column="2" Style="{StaticResource IconBtn}"/>
 
 
             <Button Command="{Binding SaveCommand}"
@@ -69,8 +83,25 @@
                     Style="{StaticResource IconBtn}"/>
 
         </Grid>
-        
-        
-        
+
+        <ctl:ContentDialog Title="评论" SubTitle="为此条翻译写评论，不一定保存哦！"
+           IsOpen="{Binding DialogVisible}"
+            PrimaryCommand="{Binding DialogConfirmCommand}"
+            SecondaryCommand="{Binding DialogCancelCommand}"
+           Grid.RowSpan="6" Grid.ColumnSpan="2">
+            <TextBox Text="{Binding DialogContent}" AcceptsReturn="True" AcceptsTab="True"/>
+        </ctl:ContentDialog>
+        <ctl:ContentDialog Title="引用文件" SubTitle="添加来源文件及行号"
+               IsOpen="{Binding DialogFileVisible}"
+                PrimaryCommand="{Binding DialogFileConfirmCommand}"
+                SecondaryCommand="{Binding DialogCancelCommand}"
+               Grid.RowSpan="6" Grid.ColumnSpan="2">
+            <StackPanel>
+                <TextBlock Text="文件" Style="{StaticResource InputHeaderStyle}"/>
+                <ctl:FileInput FileName="{Binding DialogFileName}" Height="32"/>
+                <TextBlock Text="行号" Style="{StaticResource InputHeaderStyle}"/>
+                <TextBox Text="{Binding DialogFileLine}" Style="{StaticResource InputEntryStyle}"/>
+            </StackPanel>
+        </ctl:ContentDialog>
     </Grid>
 </Window>

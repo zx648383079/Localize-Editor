@@ -80,7 +80,7 @@ namespace ZoDream.Shared.Translators
         public string TranslateScript(string sourceLang, string targetLang, string text)
         {
             return "var input = document.getElementById('js_fanyi_input');"
-                + "input.innerText ='" + text + "';"
+                 + JavaScriptHelper.Value("input", text)
                 + JavaScriptHelper.Blur("input")
                 + "var output = document.getElementById('js_fanyi_output_resultOutput');"
                 + "function trf(){ " +

@@ -75,7 +75,7 @@ namespace ZoDream.Shared.Translators
         public string TranslateScript(string sourceLang, string targetLang, string text)
         {
             return "var items = document.querySelectorAll('d-textarea');"
-                + "items[0].firstChild.innerText ='" + text + "';"
+                + JavaScriptHelper.Value("items[0].firstChild", text)
                 + JavaScriptHelper.Paste("items[0].firstChild", text)
                 + "function trf(){ " +
                 JavaScriptHelper.Callback("items[1].firstChild") +

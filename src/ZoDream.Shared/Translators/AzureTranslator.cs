@@ -81,7 +81,7 @@ namespace ZoDream.Shared.Translators
         public string TranslateScript(string sourceLang, string targetLang, string text)
         {
             return "var input = document.getElementById('tta_input_ta');"
-                + "input.value ='" + text + "';"
+                 + JavaScriptHelper.Value("input", text, true)
                 + JavaScriptHelper.Blur("input")
                 + "var output = document.getElementById('tta_output_ta');"
                 + "function trf(){ " +

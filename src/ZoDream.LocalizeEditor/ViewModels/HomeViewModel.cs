@@ -389,6 +389,7 @@ namespace ZoDream.LocalizeEditor.ViewModels
             var browser = app.OpenBrowser();
             browser.Translator = browserClient;
             await browser.NavigateAsync(browserClient.EntryURL);
+            var translated = new Dictionary<string, string>();
             for (int i = Math.Max(0, begin); i < Items.Count; i++)
             {
                 if (token.IsCancellationRequested)
@@ -401,13 +402,19 @@ namespace ZoDream.LocalizeEditor.ViewModels
                 {
                     continue;
                 }
-                var res = await browser.ExecuteScriptAsync(browserClient.TranslateScript(SourceLang,
-                TargetLang, item.Source));
+                var source = item.Source.Trim();
+                if (!translated.TryGetValue(source, out var target))
+                {
+                    target = await browser.ExecuteScriptAsync(browserClient.TranslateScript(SourceLang,
+                        TargetLang, source));
+                    translated.TryAdd(source, target);
+                }
                 app.DispatcherQueue.Invoke(() => {
-                    item.Target = res;
+                    item.Target = target;
                     UnitSelectedItem = item;
                 });
             }
+            translated.Clear();
             app.DispatcherQueue.Invoke(() => 
             {
                 IsLoading = false;

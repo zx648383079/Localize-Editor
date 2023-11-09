@@ -14,7 +14,7 @@ using ZoDream.Shared.ViewModel;
 
 namespace ZoDream.LocalizeEditor.ViewModels
 {
-    public class EditViewModel: BindableBase
+    public partial class EditViewModel: BindableBase
     {
 
         public EditViewModel()
@@ -25,6 +25,12 @@ namespace ZoDream.LocalizeEditor.ViewModels
             NextCommand = new RelayCommand(TapNext);
             AddCommendCommand = new RelayCommand(TapAddComment);
             TogglePluralCommand = new RelayCommand(TapTogglePlural);
+            DialogConfirmCommand = new RelayCommand(TapDialogConfirm);
+            DialogCancelCommand = new RelayCommand(TapDialogCancel);
+            DialogFileConfirmCommand = new RelayCommand(TapDialogFileConfirm);
+            AddFileCommand = new RelayCommand(TapAddFile);
+            EditFileCommand = new RelayCommand(TapEditFile);
+            RemoveFileCommand = new RelayCommand(TapRemoveFile);
         }
 
         private UnitItem UpdatedData = new();
@@ -52,6 +58,12 @@ namespace ZoDream.LocalizeEditor.ViewModels
         }
 
 
+        private bool togglePlural;
+
+        public bool TogglePlural {
+            get => togglePlural;
+            set => Set(ref togglePlural, value);
+        }
 
         private string id = string.Empty;
 
@@ -94,7 +106,6 @@ namespace ZoDream.LocalizeEditor.ViewModels
             }
         }
 
-
         private ObservableCollection<SourceLocation> locationItems = new();
 
         public ObservableCollection<SourceLocation> LocationItems
@@ -121,6 +132,7 @@ namespace ZoDream.LocalizeEditor.ViewModels
             }
             set {
                 UpdatedData = value.Clone<UnitItem>();
+                TogglePlural = false;
                 Source = value.Source;
                 Target = value.Target;
                 Id = value.Id;
@@ -149,7 +161,6 @@ namespace ZoDream.LocalizeEditor.ViewModels
             UpdatedData.Source = source;
             UpdatedData.Id = id;
             UpdatedData.Location = LocationItems.ToList();
-
             OnConfirm?.Invoke();
             SaveEnabled = false;
         }
@@ -160,10 +171,14 @@ namespace ZoDream.LocalizeEditor.ViewModels
 
         private void TapAddComment(object? _)
         {
+            DialogOpen(res => {
+                UpdatedData.Comment = res;
+            });
         }
 
         private void TapTogglePlural(object? _)
         {
+            TogglePlural = !TogglePlural;
         }
 
     }

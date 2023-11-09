@@ -106,7 +106,7 @@ namespace ZoDream.Shared.Translators
         public string TranslateScript(string sourceLang, string targetLang, string text)
         {
             return "var input = document.querySelector('.textinput');"
-                + "input.value ='" + text + "';"
+                + JavaScriptHelper.Value("input", text, true)
                 + JavaScriptHelper.Blur("input")
                 + "var output = document.querySelector('.text-dst');"
                 + "function trf(){ " +
