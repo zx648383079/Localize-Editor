@@ -38,6 +38,25 @@ namespace ZoDream.LocalizeEditor.ViewModels
         public ICommand TranslateFromCommand {  get; private set; }
         public ICommand StopCommand { get; private set; }
 
+        public ICommand RepairSourceCommand { get; private set; }
+
+        private void TapRepairSource(object? _)
+        {
+            foreach (var item in Items)
+            {
+                if (string.IsNullOrWhiteSpace(item.Id))
+                {
+                    item.Id = item.Source;
+                }
+                item.Source = item.Target;
+                item.SourcePlural = item.TargetPlural.Count > 0 ? item.TargetPlural[0] : string.Empty;
+            }
+            SourceLang = TargetLang;
+            var app = App.ViewModel;
+            app.Packages.Clear();
+            app.CurrentPackage = ReaderPackage;
+        }
+
         private void TapTranslatePackage(object? _)
         {
             if (App.ViewModel.Option.UseBrowser && 

@@ -46,9 +46,12 @@
             </MenuItem>
             <MenuItem Header="编辑">
                 <MenuItem Header="快速添加" Command="{Binding AddCommand}"/>
+                <Separator/>
                 <MenuItem Header="打开浏览器" Command="{Binding OpenBrowserCommand}"/>
                 <MenuItem Header="翻译全部" Command="{Binding TranslatePackageCommand}"/>
                 <MenuItem Header="从选中开始翻译" Command="{Binding TranslateFromCommand}"/>
+                <Separator/>
+                <MenuItem Header="转翻译为源" Command="{Binding RepairSourceCommand}"/>
             </MenuItem>
             <MenuItem Header="帮助">
                 <MenuItem Header="查看帮助"/>

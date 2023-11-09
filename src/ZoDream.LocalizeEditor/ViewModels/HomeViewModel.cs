@@ -44,6 +44,7 @@ namespace ZoDream.LocalizeEditor.ViewModels
             TranslatePackageCommand = new RelayCommand(TapTranslatePackage);
             TranslateFromCommand = new RelayCommand(TapTranslateFrom);
             StopCommand = new RelayCommand(TapStop);
+            RepairSourceCommand = new RelayCommand(TapRepairSource);
             DatabaseType = DatabaseTypeItems[0];
             FilteredItems = CollectionViewSource.GetDefaultView(Items);
             FilteredItems.Filter = item => {
