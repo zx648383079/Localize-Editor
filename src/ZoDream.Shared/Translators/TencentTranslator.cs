@@ -107,12 +107,11 @@ namespace ZoDream.Shared.Translators
         {
             return "var input = document.querySelector('.textinput');"
                 + JavaScriptHelper.Value("input", text, true)
-                + JavaScriptHelper.Blur("input")
-                + "var output = document.querySelector('.text-dst');"
+                + JavaScriptHelper.EmitPaste("input", text)
                 + "function trf(){ " +
-                JavaScriptHelper.Callback("output")
-                + "output.removeEventListener('change', trf); }"
-                + "output.addEventListener('change', trf)";
+                GetScript()
+                + "}"
+                + JavaScriptHelper.ListenChange("document.querySelector('.textpanel-target-textblock')", "trf");
         }
 
         public string GetScript()

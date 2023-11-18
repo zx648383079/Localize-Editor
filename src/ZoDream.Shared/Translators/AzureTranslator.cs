@@ -82,12 +82,12 @@ namespace ZoDream.Shared.Translators
         {
             return "var input = document.getElementById('tta_input_ta');"
                  + JavaScriptHelper.Value("input", text, true)
-                + JavaScriptHelper.Blur("input")
+                + JavaScriptHelper.EmitInput("input")
                 + "var output = document.getElementById('tta_output_ta');"
                 + "function trf(){ " +
                 JavaScriptHelper.Callback("output", true)
-                + "output.removeEventListener('change', trf); }"
-                + "output.addEventListener('change', trf)";
+                + "}"
+                + JavaScriptHelper.LoopChange("output", "trf");
         }
 
         public string GetScript()

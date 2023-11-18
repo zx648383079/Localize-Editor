@@ -124,12 +124,11 @@ namespace ZoDream.Shared.Translators
         {
             return "var input = document.getElementById('source');"
                  + JavaScriptHelper.Value("input", text, true)
-                + JavaScriptHelper.Blur("input")
-                + "var output = document.querySelector('.target-translat').querySelector('pre');"
+                + JavaScriptHelper.EmitInput("input")
                 + "function trf(){ " +
-                JavaScriptHelper.Callback("output")
-                + "output.removeEventListener('change', trf); }"
-                + "output.addEventListener('change', trf)";
+                GetScript()
+                + "}"
+                + JavaScriptHelper.ListenChange("document.querySelector('.target-translat')", "trf");
         }
 
         public string GetScript()

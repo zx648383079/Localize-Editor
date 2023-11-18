@@ -80,12 +80,12 @@ namespace ZoDream.Shared.Translators
         {
             return "var input = document.getElementById('baidu_translate_input');"
                  + JavaScriptHelper.Value("input", text, true)
-                + JavaScriptHelper.Blur("input")
-                + "var output = document.querySelector('.target-output');"
+                + JavaScriptHelper.EmitPaste("input", text)
+                + "var output = document.querySelector('.output-wrap');"
                 + "function trf(){ " +
-                JavaScriptHelper.Callback("output")
-                + "output.removeEventListener('change', trf); }"
-                + "output.addEventListener('change', trf)";
+                GetScript()
+                + "}"
+                + JavaScriptHelper.ListenChange("document.querySelector('.output-wrap')", "trf");
         }
 
         public string GetScript()

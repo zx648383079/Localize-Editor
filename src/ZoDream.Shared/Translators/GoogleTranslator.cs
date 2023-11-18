@@ -77,7 +77,7 @@ namespace ZoDream.Shared.Translators
         {
             return "var input = document.querySelector('textarea');"
                 + JavaScriptHelper.Value("input", text, true)
-                + JavaScriptHelper.Blur("input")
+                + JavaScriptHelper.EmitBlur("input")
                 + "var output = document.querySelector('.lRu31');"
                 + "function trf(){ " +
                 JavaScriptHelper.Callback("output")

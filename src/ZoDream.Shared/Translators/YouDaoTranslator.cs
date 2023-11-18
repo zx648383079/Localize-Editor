@@ -81,12 +81,11 @@ namespace ZoDream.Shared.Translators
         {
             return "var input = document.getElementById('js_fanyi_input');"
                  + JavaScriptHelper.Value("input", text)
-                + JavaScriptHelper.Blur("input")
-                + "var output = document.getElementById('js_fanyi_output_resultOutput');"
+                + JavaScriptHelper.EmitInput("input")
                 + "function trf(){ " +
-                JavaScriptHelper.Callback("output")
-                + "output.removeEventListener('change', trf); }"
-                + "output.addEventListener('change', trf)";
+                GetScript()
+                + "}"
+                + JavaScriptHelper.LoopChange("document.getElementById('js_fanyi_output')", "trf");
         }
 
         public string GetScript()

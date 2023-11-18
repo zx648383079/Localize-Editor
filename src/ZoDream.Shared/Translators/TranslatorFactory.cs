@@ -97,10 +97,10 @@ namespace ZoDream.Shared.Translators
                     Token = option["Token"],
                     Project = option["Project"],
                 },
-                "Alibaba" => new GoogleTranslator()
+                "Alibaba" => new AlibabaTranslator()
                 {
-                    Token = option["Token"],
-                    Project = option["Project"],
+                    AccessKeyId = option["AccessKeyId"],
+                    AccessKeySecret = option["AccessKeySecret"],
                 },
                 _ => null,
             };

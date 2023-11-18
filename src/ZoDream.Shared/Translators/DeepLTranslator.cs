@@ -76,7 +76,7 @@ namespace ZoDream.Shared.Translators
         {
             return "var items = document.querySelectorAll('d-textarea');"
                 + JavaScriptHelper.Value("items[0].firstChild", text)
-                + JavaScriptHelper.Paste("items[0].firstChild", text)
+                + JavaScriptHelper.EmitPaste("items[0].firstChild", text)
                 + "function trf(){ " +
                 JavaScriptHelper.Callback("items[1].firstChild") +
                 " }"
