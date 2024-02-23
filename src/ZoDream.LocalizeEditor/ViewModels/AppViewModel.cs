@@ -14,7 +14,6 @@ using ZoDream.Shared.Models;
 using ZoDream.Shared.Readers;
 using ZoDream.Shared.Storage;
 using ZoDream.Shared.Translators;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace ZoDream.LocalizeEditor.ViewModels
 {

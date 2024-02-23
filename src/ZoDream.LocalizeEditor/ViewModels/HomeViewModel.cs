@@ -299,7 +299,10 @@ namespace ZoDream.LocalizeEditor.ViewModels
 
         public LanguagePackage ReaderPackage {
             get {
-                var package = new LanguagePackage(SourceLang, TargetLang);
+                var provider = App.ViewModel.LangDictionary;
+                var package = new LanguagePackage(
+                    provider.RepairCode(SourceLang),
+                    provider.RepairCode(TargetLang));
                 foreach (var item in Items)
                 {
                     package.Items.Add(item.Clone<UnitItem>());
