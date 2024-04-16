@@ -37,6 +37,10 @@ namespace ZoDream.LocalizeEditor.ViewModels
             SearchCommand = new RelayCommand(TapSearch);
             DialogConfirmCommand = new RelayCommand(TapDialogConfirm);
             DialogCancelCommand = new RelayCommand(TapDialogCancel);
+            PanelAddCommand = new RelayCommand(TapPanelAdd);
+            PanelCloseCommand = new RelayCommand(TapPanelClose);
+            PanelOpenCommand = new RelayCommand(TapPanelOpen);
+            PanelRemoveCommand = new RelayCommand(TapPanelRemove);
             OpenBrowserCommand = new RelayCommand(TapOpenBrowser);
             ImportDatabaseCommand = new RelayCommand(TapImportDatabase);
             ExportDatabaseCommand = new RelayCommand(TapExportDatabase);
@@ -109,7 +113,7 @@ namespace ZoDream.LocalizeEditor.ViewModels
                 return;
             }
             targetLang = lang;
-            Save(lastLang, Items);
+            SyncToGlobal(lastLang, Items);
             Load(lang);
         }
 
@@ -256,12 +260,14 @@ namespace ZoDream.LocalizeEditor.ViewModels
                 return;
             }
             IsLoading = true;
-            var package = await reader.ReadAsync(fileName);
+            var items = await reader.ReadAsync(fileName);
             IsLoading = false;
-            if (package is null)
+            if (items is null || items.Count == 0)
             {
                 return;
             }
+            App.ViewModel.AppendPackage(items);
+            var package = items[0];
             package.Language = App.ViewModel.PackageSourceLanguage;
             if (string.IsNullOrWhiteSpace(package.TargetLanguage))
             {
@@ -311,6 +317,53 @@ namespace ZoDream.LocalizeEditor.ViewModels
             }
         }
 
+        private void ExportAs(string? ext, bool isAll)
+        {
+            if (string.IsNullOrWhiteSpace(ext))
+            {
+                ext = "xlf";
+            }
+            var picker = new Microsoft.Win32.SaveFileDialog
+            {
+                Title = "选择保存路径",
+                Filter = AppViewModel.FileFilters,
+                FileName = "undefine." + ext,
+                CheckFileExists = false,
+                CheckPathExists = false,
+                CreatePrompt = false,
+                OverwritePrompt = false,
+            };
+            if (picker.ShowDialog() != true)
+            {
+                return;
+            }
+            _ = ExportAsAsync(ext, picker.FileName, isAll);
+        }
+
+        private async Task ExportAsAsync(string ext, string fileName, bool isAll)
+        {
+            var reader = AppViewModel.Reader(ext);
+            if (reader is null)
+            {
+                return;
+            }
+            IsLoading = true;
+            SyncToGlobal(TargetLang, Items);
+            if (isAll)
+            {
+                await reader.WriteAsync(fileName, App.ViewModel.Packages.Values);
+            }
+            else
+            {
+                await reader.WriteAsync(fileName, ReaderPackage);
+            }
+
+            App.ViewModel.DispatcherQueue.Invoke(() => {
+                IsLoading = false;
+                MessageBox.Show("保存成功");
+            });
+        }
+
         public async Task SaveAsync(string fileName)
         {
             var reader = AppViewModel.Reader(Path.GetExtension(fileName));
@@ -342,7 +395,12 @@ namespace ZoDream.LocalizeEditor.ViewModels
             }
         }
 
-        public void Save(string lang, IEnumerable<UnitViewModel> unitItems)
+        /// <summary>
+        /// 更新当前语言
+        /// </summary>
+        /// <param name="lang"></param>
+        /// <param name="unitItems"></param>
+        public void SyncToGlobal(string lang, IEnumerable<UnitViewModel> unitItems)
         {
             LanguagePackage package;
             var has = App.ViewModel.Packages.ContainsKey(lang);

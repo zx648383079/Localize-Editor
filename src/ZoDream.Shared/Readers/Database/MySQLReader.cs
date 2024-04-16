@@ -28,13 +28,18 @@ namespace ZoDream.Shared.Readers.Database
             return ConnectStringBuilder(host, username, password, schema);
         }
 
+        public async Task<IList<LanguagePackage>> ReadAsync(string file)
+        {
+            return [await ReadTableAsync(file)];
+        }
+
         /// <summary>
         /// 
         /// </summary>
         /// <param name="file">Server=127.0.0.1;Uid=root;Pwd=root;Database=zodream;UseCompression=True;AllowBatch=true;UseUsageAdvisor=True;</param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public Task<LanguagePackage> ReadAsync(string file)
+        public Task<LanguagePackage> ReadTableAsync(string file)
         {
             return Task.Factory.StartNew(() => {
                 return Read(file);
@@ -59,18 +64,26 @@ namespace ZoDream.Shared.Readers.Database
             return package;
         }
 
+        public async Task WriteAsync(string file, IEnumerable<LanguagePackage> items)
+        {
+            foreach (var item in items)
+            {
+                await WriteAsync(file, item);
+            }
+        }
+
         public Task WriteAsync(string file, LanguagePackage package)
         {
             return Task.Factory.StartNew(() => {
-                Write(file, package);
+                Write(file, ReaderFactory.RenderFileName(TableName, package), package);
             });
         }
 
-        public void Write(string connectionString, LanguagePackage package)
+        public void Write(string connectionString, string tableName, LanguagePackage package)
         {
             using var connection = new MySqlConnection(connectionString);
             connection.Open();
-            var sql = $"UPDATE `{TableName}` SET `{TargetKey}`=@target WHERE `{IdKey}`=@id";
+            var sql = $"UPDATE `{tableName}` SET `{TargetKey}`=@target WHERE `{IdKey}`=@id";
             foreach (var item in package.Items)
             {
                 // TODO 空跳过
@@ -94,7 +107,7 @@ namespace ZoDream.Shared.Readers.Database
             }
             catch
             {
-                return Array.Empty<string>();
+                return [];
             }
             var sql = "SHOW DATABASES";
             var cmd = new MySqlCommand(sql, connection);
@@ -110,7 +123,7 @@ namespace ZoDream.Shared.Readers.Database
                 }
                 items.Add(name);
             }
-            return items.ToArray();
+            return [.. items];
         }
 
         public async Task<string[]> LoadTableAsync(string host, string username, string password, string schema)
@@ -123,7 +136,7 @@ namespace ZoDream.Shared.Readers.Database
             }
             catch
             {
-                return Array.Empty<string>();
+                return [];
             }
             var sql = "SHOW TABLES";
             var cmd = new MySqlCommand(sql, connection);
@@ -133,7 +146,7 @@ namespace ZoDream.Shared.Readers.Database
             {
                 items.Add(reader.GetString(0));
             }
-            return items.ToArray();
+            return [.. items];
         }
 
         public async Task<string[]> LoadFieldAsync(string host, string username, string password, string schema, string table)
@@ -146,7 +159,7 @@ namespace ZoDream.Shared.Readers.Database
             }
             catch
             {
-                return Array.Empty<string>();
+                return [];
             }
             var sql = $"SHOW COLUMNS FROM `{table}`";
             var cmd = new MySqlCommand(sql, connection);
@@ -156,7 +169,7 @@ namespace ZoDream.Shared.Readers.Database
             {
                 items.Add(reader.GetString(0));
             }
-            return items.ToArray();
+            return [.. items];
         }
     }
 }

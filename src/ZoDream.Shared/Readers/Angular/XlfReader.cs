@@ -15,7 +15,12 @@ namespace ZoDream.Shared.Readers.Angular
     {
         const string TAB = "    ";
 
-        public async Task<LanguagePackage> ReadAsync(string file)
+        public async Task<IList<LanguagePackage>> ReadAsync(string file)
+        {
+            return [await ReadFileAsync(file)];
+        }
+
+        public async Task<LanguagePackage> ReadFileAsync(string file)
         {
             var reader = new CharReader(await LocationStorage.ReadAsync(file));
             var package = new LanguagePackage("en");
@@ -223,9 +228,17 @@ namespace ZoDream.Shared.Readers.Angular
             return sb.ToString();
         }
 
+        public async Task WriteAsync(string file, IEnumerable<LanguagePackage> items)
+        {
+            foreach (var item in items)
+            {
+                await WriteAsync(file, item);
+            }
+        }
+
         public async Task WriteAsync(string file, LanguagePackage package)
         {
-            using var writer = LocationStorage.Writer(file);
+            using var writer = LocationStorage.Writer(ReaderFactory.RenderFileName(file, package));
             await WriteLineAsync(writer, "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
             await WriteLineAsync(writer, "<xliff version=\"1.2\" xmlns=\"urn: oasis:names: tc:xliff: document:1.2\">");
             var targetLang = package.TargetLanguage == null || package.TargetLanguage == package.Language ? string.Empty : $" target-language=\"{package.TargetLanguage}\"";

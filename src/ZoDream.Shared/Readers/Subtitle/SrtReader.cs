@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,7 +10,11 @@ namespace ZoDream.Shared.Readers.Subtitle
 {
     public class SrtReader : IReader
     {
-        public Task<LanguagePackage> ReadAsync(string file)
+        public async Task<IList<LanguagePackage>> ReadAsync(string file)
+        {
+            return [await ReadFileAsync(file)];
+        }
+        public Task<LanguagePackage> ReadFileAsync(string file)
         {
             return Task.Factory.StartNew(() => 
             {
@@ -63,11 +68,19 @@ namespace ZoDream.Shared.Readers.Subtitle
             return content;
         }
 
+        public async Task WriteAsync(string file, IEnumerable<LanguagePackage> items)
+        {
+            foreach (var item in items)
+            {
+                await WriteAsync(file, item);
+            }
+        }
+
         public Task WriteAsync(string file, LanguagePackage package)
         {
             return Task.Factory.StartNew(() => 
             {
-                Write(file, package);
+                Write(ReaderFactory.RenderFileName(file, package), package);
             });
         }
 

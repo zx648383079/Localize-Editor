@@ -1,5 +1,5 @@
-﻿using MySqlX.XDevAPI;
-using System;
+﻿using System.IO.Packaging;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using ZoDream.LocalizeEditor.Pages;
@@ -101,7 +101,7 @@ namespace ZoDream.LocalizeEditor.ViewModels
 
         private void TapChange(object? _)
         {
-            DialogOpen();
+            PanelOpen();
         }
 
         private void TapExit(object? _)
@@ -213,26 +213,22 @@ namespace ZoDream.LocalizeEditor.ViewModels
 
         private void TapSaveAs(object? arg)
         {
-            var ext = arg?.ToString() ?? "xlf";
-            var picker = new Microsoft.Win32.SaveFileDialog
-            {
-                Title = "选择保存路径",
-                Filter = AppViewModel.FileFilters,
-                FileName = "undefine." + ext,
-            };
-            if (picker.ShowDialog() != true)
-            {
-                return;
-            }
-            _ = SaveAsync(picker.FileName);
+            ExportAs(arg?.ToString(), false);
         }
+
+        
         private void TapImport(object? _)
         {
             TapOpen(_);
         }
         private void TapExport(object? arg)
         {
-            TapSaveAs(arg);
+            var res = MessageBox.Show("文件名可以填入{lang}代表语言,是表示导出全部，否表示导出当前", "是否导出全部语言", MessageBoxButton.YesNoCancel);
+            if (res == MessageBoxResult.Cancel)
+            {
+                return;
+            }
+            ExportAs(arg?.ToString(), res == MessageBoxResult.Yes);
         }
 
         private void TapExportDatabase(object? _)

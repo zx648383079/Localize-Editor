@@ -27,7 +27,7 @@ namespace ZoDream.LocalizeEditor
             ShellManager.GoToAsync("startup");
         }
 
-        private void RegisterRoute()
+        private static void RegisterRoute()
         {
             ShellManager.RegisterRoute("home", typeof(HomePage));
             ShellManager.RegisterRoute("startup", typeof(StartupPage));

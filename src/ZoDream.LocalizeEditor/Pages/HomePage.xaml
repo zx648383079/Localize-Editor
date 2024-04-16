@@ -6,7 +6,10 @@
       xmlns:vm="clr-namespace:ZoDream.LocalizeEditor.ViewModels"
       xmlns:ctl="clr-namespace:ZoDream.LocalizeEditor.Controls"
       xmlns:local="clr-namespace:ZoDream.LocalizeEditor.Pages"
+      xmlns:Behaviors="http://schemas.microsoft.com/xaml/behaviors"
+      xmlns:bhv="clr-namespace:ZoDream.LocalizeEditor.Behaviors"
       mc:Ignorable="d" 
+      x:Name="root"
       d:DesignHeight="450" d:DesignWidth="800"
       Title="主界面">
 
@@ -81,7 +84,8 @@
             <TextBox Text="{Binding Keywords}" MaxLines="1" Grid.Column="1"/>
             <Button Grid.Column="2" Content="&#xE721;" Command="{Binding SearchCommand}" Style="{StaticResource IconBtn}"/>
             <Button Command="{Binding AddCommand}" Grid.Column="3" 
-            Content="&#xE109;" Style="{StaticResource IconBtn}"/>
+                Content="&#xE109;" Style="{StaticResource IconBtn}"
+                    ToolTip="添加翻译语句"/>
             <TextBlock Text="语言" Grid.Column="4" Style="{StaticResource CenterTb}"/>
             <Grid Grid.Column="5">
                 <Grid.RowDefinitions>
@@ -92,7 +96,8 @@
                 <TextBlock Text="{Binding TargetLang}" Grid.Row="1" FontSize="10" VerticalAlignment="Center"/>
             </Grid>
             <Button Command="{Binding ChangeCommand}" Grid.Column="6" 
-                Content="&#xE13C;" Style="{StaticResource IconBtn}"/>
+                Content="&#xE13C;" Style="{StaticResource IconBtn}"
+                    ToolTip="切换语言"/>
         </Grid>
         <ListView x:Name="UnitListBox" 
               Grid.Row="2" ItemsSource="{Binding FilteredItems,Mode=OneWay}"
@@ -113,6 +118,43 @@
                 </GridView>
             </ListView.View>
         </ListView>
+
+        <ctl:FlowPanel Title="语言包列表"
+                       Grid.RowSpan="4"
+                       BackVisible="True"
+                       AddVisible="True"
+                       IsOpen="{Binding PanelVisible}"
+                       BackCommand="{Binding PanelCloseCommand}"
+                       AddCommand="{Binding PanelAddCommand}">
+            <ListBox ItemsSource="{Binding PanelItems}" HorizontalContentAlignment="Stretch">
+                <Behaviors:Interaction.Behaviors>
+                    <bhv:ListItemDoubleClickBehavior Command="{Binding PanelOpenCommand}"/>
+                </Behaviors:Interaction.Behaviors>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Height="32">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="auto"/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="32"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="{Binding SourceLanguage}" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" Text="&#xE13C;" Style="{StaticResource IconLabel}"/>
+                            <TextBlock Text="{Binding TargetLanguage}"
+                                       HorizontalAlignment="Right"
+                                       VerticalAlignment="Center" Grid.Column="2"/>
+                            <Button Command="{Binding ElementName=root, 
+                                            Path=DataContext.PanelRemoveCommand}"      
+                                            CommandParameter="{Binding}" Grid.Column="4" 
+                                Content="&#xE653;" Style="{StaticResource IconBtn}"
+                                    ToolTip="删除"/>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </ctl:FlowPanel>
 
         <ctl:ContentDialog Title="切换目标语言" SubTitle="选择目标语言"
                    IsOpen="{Binding DialogVisible}"

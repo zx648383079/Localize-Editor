@@ -106,7 +106,7 @@ namespace ZoDream.LocalizeEditor.ViewModels
             }
         }
 
-        private ObservableCollection<SourceLocation> locationItems = new();
+        private ObservableCollection<SourceLocation> locationItems = [];
 
         public ObservableCollection<SourceLocation> LocationItems
         {

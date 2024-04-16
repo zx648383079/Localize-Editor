@@ -13,7 +13,11 @@ namespace ZoDream.Shared.Readers.WordPress
 {
     public class MoReader : IReader
     {
-        public Task<LanguagePackage> ReadAsync(string file)
+        public async Task<IList<LanguagePackage>> ReadAsync(string file)
+        {
+            return [await ReadFileAsync(file)];
+        }
+        public Task<LanguagePackage> ReadFileAsync(string file)
         {
             return Task.Factory.StartNew(() => {
                 return ReadFile(file);
@@ -43,7 +47,7 @@ namespace ZoDream.Shared.Readers.WordPress
             var hashSize = reader.ReadInt32(); // 哈希表大小
             var hashPos = reader.ReadInt32();  // 哈希表位置
 
-            Encoding encoding = null;
+            Encoding? encoding = null;
 
             reader.BaseStream.Seek(sourcePos, SeekOrigin.Begin);
             // 大小，位置
@@ -121,11 +125,19 @@ namespace ZoDream.Shared.Readers.WordPress
             }
         }
 
+        public async Task WriteAsync(string file, IEnumerable<LanguagePackage> items)
+        {
+            foreach (var item in items)
+            {
+                await WriteAsync(file, item);
+            }
+        }
+
         public Task WriteAsync(string file, LanguagePackage package)
         {
             return Task.Factory.StartNew(() => 
             {
-                WriteFile(file, package);
+                WriteFile(ReaderFactory.RenderFileName(file, package), package);
             });
         }
 

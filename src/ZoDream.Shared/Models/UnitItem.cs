@@ -48,7 +48,15 @@ namespace ZoDream.Shared.Models
 
         public void AddLine(string fileName, string lineNo)
         {
-            throw new NotImplementedException();
+            foreach (var item in Location)
+            {
+                if (item.FileName == fileName)
+                {
+                    item.Add(lineNo);
+                    return;
+                }
+            }
+            Location.Add(new SourceLocation(fileName, lineNo));
         }
     }
 }

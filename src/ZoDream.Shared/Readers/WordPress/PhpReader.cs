@@ -10,7 +10,11 @@ namespace ZoDream.Shared.Readers.WordPress
 {
     public class PhpReader : IReader
     {
-        public async Task<LanguagePackage> ReadAsync(string file)
+        public async Task<IList<LanguagePackage>> ReadAsync(string file)
+        {
+            return [await ReadFileAsync(file)];
+        }
+        public async Task<LanguagePackage> ReadFileAsync(string file)
         {
             var package = new LanguagePackage("en");
             var content = await LocationStorage.ReadAsync(file);
@@ -44,7 +48,15 @@ namespace ZoDream.Shared.Readers.WordPress
                 sb.AppendLine($"    '{source}' => '${item.Target}',");
             }
             sb.AppendLine("];");
-            await LocationStorage.WriteAsync(file, sb.ToString());
+            await LocationStorage.WriteAsync(ReaderFactory.RenderFileName(file, package), sb.ToString());
+        }
+
+        public async Task WriteAsync(string file, IEnumerable<LanguagePackage> items)
+        {
+            foreach (var item in items)
+            {
+                await WriteAsync(file, item);
+            }
         }
     }
 }

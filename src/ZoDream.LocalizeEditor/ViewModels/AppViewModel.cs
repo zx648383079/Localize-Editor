@@ -1,8 +1,10 @@
-﻿using System;
+﻿using Google.Protobuf.WellKnownTypes;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Packaging;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,9 +29,9 @@ namespace ZoDream.LocalizeEditor.ViewModels
         }
 
         public AppOption Option { get; private set; } = new();
-        public LanguageDictionary LangDictionary { get; private set; } = new();
+        public LanguageDictionary LangDictionary { get; private set; } = [];
 
-        public readonly Dictionary<string, LanguagePackage> Packages = new();
+        public readonly Dictionary<string, LanguagePackage> Packages = [];
 
         public string PackageLanguage { get; set; } = string.Empty;
         /// <summary>
@@ -52,13 +54,7 @@ namespace ZoDream.LocalizeEditor.ViewModels
                     return;
                 }
                 PackageLanguage = value.TargetLanguage;
-                if (Packages.ContainsKey(PackageLanguage))
-                {
-                    Packages[value.TargetLanguage] = value;
-                } else
-                {
-                    Packages.Add(value.TargetLanguage, value);
-                }
+                AppendPackage(value);
             }
         }
 
@@ -164,7 +160,13 @@ namespace ZoDream.LocalizeEditor.ViewModels
             {
                 return null;
             }
-            var package = await reader.ReadAsync(path);
+            var items = await reader.ReadAsync(path);
+            if (items is null || items.Count == 0)
+            {
+                return null;
+            }
+            AppendPackage(items);
+            var package = items[0];
             package.FileName = path;
             return package;
         }
@@ -186,6 +188,27 @@ namespace ZoDream.LocalizeEditor.ViewModels
         public void AddPackage(LanguagePackage package)
         {
             CurrentPackage = package;
+        }
+
+        public void AppendPackage(IEnumerable<LanguagePackage> items)
+        {
+            foreach (var item in items)
+            {
+                AppendPackage(item);
+            }
+        }
+
+        public void AppendPackage(LanguagePackage package)
+        {
+            var lang = package.TargetLanguage;
+            if (Packages.ContainsKey(lang))
+            {
+                Packages[lang] = package;
+            }
+            else
+            {
+                Packages.Add(lang, package);
+            }
         }
 
 
