@@ -1,7 +1,5 @@
 ﻿using System.Collections.ObjectModel;
-using System.IO.Packaging;
 using System.Windows.Input;
-using ZoDream.Shared.Models;
 
 namespace ZoDream.LocalizeEditor.ViewModels
 {
@@ -43,6 +41,7 @@ namespace ZoDream.LocalizeEditor.ViewModels
                 var lange = App.ViewModel.LangDictionary.RepairCode(package.TargetLanguage);
                 TargetLang = package.TargetLanguage;
                 Load(lange);
+                PanelVisible = false;
             }
         }
 

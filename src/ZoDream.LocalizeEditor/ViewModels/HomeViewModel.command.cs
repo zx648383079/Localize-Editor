@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using ZoDream.LocalizeEditor.Pages;
+using ZoDream.Shared.Readers;
 using ZoDream.Shared.Routes;
 using ZoDream.Shared.Translators;
 
@@ -185,11 +186,11 @@ namespace ZoDream.LocalizeEditor.ViewModels
             TapChange(_);
         }
 
-        private void TapOpen(object? _)
+        private void TapOpen(object? arg)
         {
             var picker = new Microsoft.Win32.OpenFileDialog
             {
-                Filter = AppViewModel.FileFilters,
+                Filter = ReaderFactory.RenderFileFilter(arg?.ToString()),
                 Title = "选择文件"
             };
             if (picker.ShowDialog() != true)

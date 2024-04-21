@@ -319,15 +319,11 @@ namespace ZoDream.LocalizeEditor.ViewModels
 
         private void ExportAs(string? ext, bool isAll)
         {
-            if (string.IsNullOrWhiteSpace(ext))
-            {
-                ext = "xlf";
-            }
             var picker = new Microsoft.Win32.SaveFileDialog
             {
                 Title = "选择保存路径",
-                Filter = AppViewModel.FileFilters,
-                FileName = "undefine." + ext,
+                Filter = ReaderFactory.RenderFileFilter(ext),
+                FileName = !string.IsNullOrWhiteSpace(ext) ? "undefine." + ext : "undefine.xlf",
                 CheckFileExists = false,
                 CheckPathExists = false,
                 CreatePrompt = false,
@@ -336,6 +332,14 @@ namespace ZoDream.LocalizeEditor.ViewModels
             if (picker.ShowDialog() != true)
             {
                 return;
+            }
+            if (string.IsNullOrWhiteSpace(ext))
+            {
+                ext = Path.GetExtension(picker.FileName);
+                if (string.IsNullOrWhiteSpace(ext))
+                {
+                    ext = "xlf";
+                }
             }
             _ = ExportAsAsync(ext, picker.FileName, isAll);
         }

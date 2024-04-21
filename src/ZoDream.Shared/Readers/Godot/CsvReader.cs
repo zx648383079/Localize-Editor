@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using ZoDream.Shared.Models;
 using ZoDream.Shared.Storage;
@@ -23,7 +24,7 @@ namespace ZoDream.Shared.Readers.Godot
 
         public IList<LanguagePackage> Read(string file)
         {
-            var reader = LocationStorage.Reader(file);
+            using var reader = LocationStorage.Reader(file);
             var items = new List<LanguagePackage>();
             while (true)
             {
@@ -46,7 +47,7 @@ namespace ZoDream.Shared.Readers.Godot
                     continue;
                 }
                 var id = args[0];
-                for (var i = 1; i < args.Length; i++)
+                for (var i = 1; i < Math.Min(args.Length, items.Count + 1); i++)
                 {
                     items[i - 1].Items.Add(new UnitItem(args[1], args[i])
                     {
@@ -74,11 +75,15 @@ namespace ZoDream.Shared.Readers.Godot
 
         public void Write(string file, IEnumerable<LanguagePackage> items)
         {
-            var reader = LocationStorage.Writer(file);
+            using var writer = LocationStorage.Writer(file);
             IList<UnitItem>? maxKeys = null;
             foreach (var item in items) 
             {
-                reader.Write($",{item.TargetLanguage}");
+                if (string.IsNullOrWhiteSpace(item.TargetLanguage))
+                {
+                    continue;
+                }
+                writer.Write($",{item.TargetLanguage}");
                 if (maxKeys is null || item.Items.Count > maxKeys.Count)
                 {
                     maxKeys = item.Items;
@@ -88,12 +93,16 @@ namespace ZoDream.Shared.Readers.Godot
             {
                 return;
             }
-            reader.WriteLine();
+            writer.WriteLine();
             foreach (var key in maxKeys)
             {
-                reader.Write(key.Id);
+                writer.Write(key.Id);
                 foreach (var item in items)
                 {
+                    if (string.IsNullOrWhiteSpace(item.TargetLanguage))
+                    {
+                        continue;
+                    }
                     var target = string.Empty;
                     foreach (var it in item.Items)
                     {
@@ -102,9 +111,9 @@ namespace ZoDream.Shared.Readers.Godot
                             target = it.Target;
                         }
                     }
-                    reader.Write($",{target}");
+                    writer.Write($",{target}");
                 }
-                reader.WriteLine();
+                writer.WriteLine();
             }
         }
 

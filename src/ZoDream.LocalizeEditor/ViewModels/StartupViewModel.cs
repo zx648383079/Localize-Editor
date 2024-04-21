@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using ZoDream.Shared.Readers;
 using ZoDream.Shared.Routes;
 using ZoDream.Shared.ViewModel;
 
@@ -106,7 +107,7 @@ namespace ZoDream.LocalizeEditor.ViewModels
         {
             var open = new Microsoft.Win32.OpenFileDialog
             {
-                Filter = AppViewModel.FileFilters,
+                Filter = ReaderFactory.RenderFileFilter(),
                 Title = "选择文件"
             };
             if (open.ShowDialog() != true)

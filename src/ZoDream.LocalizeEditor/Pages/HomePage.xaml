@@ -31,15 +31,18 @@
                 <MenuItem Header="保存" Command="{Binding SaveCommand}"/>
                 <Separator/>
                 <MenuItem Header="导入">
-                    <MenuItem Header="xlf" Command="{Binding ImportCommand}"/>
-                    <MenuItem Header="json" Command="{Binding ImportCommand}"/>
-                    <MenuItem Header="resw" Command="{Binding ImportCommand}"/>
+                    <MenuItem Header="xlf" Command="{Binding ImportCommand}" CommandParameter="xlf"/>
+                    <MenuItem Header="json" Command="{Binding ImportCommand}" CommandParameter="json"/>
+                    <MenuItem Header="resw" Command="{Binding ImportCommand}" CommandParameter="resw"/>
+                    <MenuItem Header="csv" Command="{Binding ImportCommand}" CommandParameter="csv"/>
+                    <MenuItem Header="文件" Command="{Binding ExportCommand}"/>
                     <MenuItem Header="数据库" Command="{Binding ImportDatabaseCommand}"/>
                 </MenuItem>
                 <MenuItem Header="导出">
-                    <MenuItem Header="xlf" Command="{Binding ExportCommand}"/>
-                    <MenuItem Header="json" Command="{Binding ExportCommand}"/>
-                    <MenuItem Header="resw" Command="{Binding ExportCommand}"/>
+                    <MenuItem Header="xlf" Command="{Binding ExportCommand}" CommandParameter="xlf"/>
+                    <MenuItem Header="resw" Command="{Binding ExportCommand}" CommandParameter="resw"/>
+                    <MenuItem Header="csv" Command="{Binding ExportCommand}" CommandParameter="csv"/>
+                    <MenuItem Header="文件" Command="{Binding ExportCommand}"/>
                     <MenuItem Header="数据库" Command="{Binding ExportDatabaseCommand}"/>
                 </MenuItem>
                 <Separator/>

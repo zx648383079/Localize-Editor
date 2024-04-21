@@ -21,8 +21,6 @@ namespace ZoDream.LocalizeEditor.ViewModels
 {
     public class AppViewModel : IDisposable
     {
-        public const string FileFilters = ReaderFactory.FileFilters;
-
         public AppViewModel()
         {
             _ = LoadOptionAsync();
