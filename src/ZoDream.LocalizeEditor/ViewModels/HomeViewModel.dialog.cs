@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Windows;
 using System.Windows.Input;
-using ZoDream.LocalizeEditor.Pages;
-using ZoDream.Shared.Routes;
 
 namespace ZoDream.LocalizeEditor.ViewModels
 {
@@ -17,7 +14,7 @@ namespace ZoDream.LocalizeEditor.ViewModels
             set {
                 if (value && LangItems.Length == 0)
                 {
-                    LangItems = App.ViewModel.LangDictionary.ToStringArray();
+                    LangItems = _app.LangDictionary.ToStringArray();
                 }
                 Set(ref dialogVisible, value);
                 if (value)
@@ -65,7 +62,7 @@ namespace ZoDream.LocalizeEditor.ViewModels
                 return;
             }
             TargetLang = DialogTargetLang;
-            Load(App.ViewModel.LangDictionary.RepairCode(DialogTargetLang));
+            Load(_app.LangDictionary.RepairCode(DialogTargetLang));
         }
 
     }

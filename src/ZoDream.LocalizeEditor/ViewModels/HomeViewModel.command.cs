@@ -1,6 +1,4 @@
-﻿using System.IO.Packaging;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Input;
 using ZoDream.LocalizeEditor.Pages;
 using ZoDream.Shared.Readers;
@@ -70,7 +68,7 @@ namespace ZoDream.LocalizeEditor.ViewModels
 
         private void TapTranslate(bool isFrom = false)
         {
-            if (App.ViewModel.Option.UseBrowser &&
+            if (_app.Option.UseBrowser &&
                 MessageBox.Show("请先打开浏览器确认语言是否配置正确？已确认则继续", "提示", 
                 MessageBoxButton.OKCancel) == MessageBoxResult.Cancel)
             {
@@ -87,8 +85,8 @@ namespace ZoDream.LocalizeEditor.ViewModels
 
         private void TapOpenBrowser(object? _)
         {
-            var browser = App.ViewModel.OpenBrowser();
-            if (App.ViewModel.GetTranslator() is IBrowserTranslator client)
+            var browser = _app.OpenBrowser();
+            if (_app.GetTranslator() is IBrowserTranslator client)
             {
                 browser.Translator = client;
                 _ = browser.NavigateAsync(client.EntryURL);
@@ -107,7 +105,7 @@ namespace ZoDream.LocalizeEditor.ViewModels
 
         private void TapExit(object? _)
         {
-            App.ViewModel.Exit();
+            _app.Exit();
         }
 
         private void TapAdd(object? _)
@@ -203,7 +201,7 @@ namespace ZoDream.LocalizeEditor.ViewModels
 
         private void TapSave(object? _)
         {
-            var package = App.ViewModel.CurrentPackage;
+            var package = _app.CurrentPackage;
             if (package is null || string.IsNullOrWhiteSpace(package.FileName))
             {
                 TapSaveAs("xlf");

@@ -13,6 +13,17 @@ namespace ZoDream.Shared.Readers.Database
         public string SourceKey { get; set; } = "source";
         public string TargetKey { get; set; } = "target";
         public string TableName { get; set; } = "";
+
+        public bool IsMatchSource(ITranslateUnit from, ITranslateUnit to)
+        {
+            return from.Source.Trim().Equals(to.Source, StringComparison.Ordinal);
+        }
+
+        public void TranslateTarget(ITranslateUnit from, ITranslateUnit to)
+        {
+            to.Target = from.Target;
+        }
+
         public string ConnectStringBuilder(string host, string username, string password,
             string schema)
         {

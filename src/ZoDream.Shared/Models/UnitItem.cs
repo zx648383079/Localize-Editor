@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace ZoDream.Shared.Models
 {
@@ -58,5 +57,6 @@ namespace ZoDream.Shared.Models
             }
             Location.Add(new SourceLocation(fileName, lineNo));
         }
+
     }
 }

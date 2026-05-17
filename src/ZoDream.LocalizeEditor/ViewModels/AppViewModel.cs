@@ -14,6 +14,7 @@ using System.Xml.Linq;
 using ZoDream.LocalizeEditor.Pages;
 using ZoDream.Shared.Models;
 using ZoDream.Shared.Readers;
+using ZoDream.Shared.Readers.CSharp;
 using ZoDream.Shared.Storage;
 using ZoDream.Shared.Translators;
 
@@ -28,6 +29,8 @@ namespace ZoDream.LocalizeEditor.ViewModels
 
         public AppOption Option { get; private set; } = new();
         public LanguageDictionary LangDictionary { get; private set; } = [];
+
+        public ITranslateComparator Comparator { get; private set; } = new ResXReader();
 
         public readonly Dictionary<string, LanguagePackage> Packages = [];
 
@@ -157,6 +160,10 @@ namespace ZoDream.LocalizeEditor.ViewModels
             if (reader is null)
             {
                 return null;
+            }
+            if (reader is ITranslateComparator rc)
+            {
+                Comparator = rc;
             }
             var items = await reader.ReadAsync(path);
             if (items is null || items.Count == 0)

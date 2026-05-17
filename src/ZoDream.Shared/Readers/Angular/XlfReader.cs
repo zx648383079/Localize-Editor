@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Xml.Linq;
-using System.Xml.Serialization;
 using ZoDream.Shared.Extensions;
 using ZoDream.Shared.Models;
 using ZoDream.Shared.Storage;
@@ -14,6 +13,34 @@ namespace ZoDream.Shared.Readers.Angular
     public class XlfReader : IReader
     {
         const string TAB = "    ";
+
+        private static readonly Regex valueRegex = new(@"\<x\s[^\<\>]+/\>");
+
+        public bool IsMatchSource(ITranslateUnit from, ITranslateUnit to)
+        {
+            if (from.Source.Trim().Equals(to.Source, StringComparison.Ordinal)) 
+            {
+                return true;
+            }
+            return valueRegex.Replace(from.Source.Trim(), "<xxxx/>") == valueRegex.Replace(to.Source.Trim(), "<xxxx/>");
+        }
+
+        public void TranslateTarget(ITranslateUnit from, ITranslateUnit to)
+        {
+            if (!valueRegex.IsMatch(from.Target))
+            {
+                to.Target = from.Target;
+                return;
+            }
+            var m1 = valueRegex.Matches(from.Source);
+            var m2 = valueRegex.Matches(to.Source);
+            var res = from.Target;
+            for (int i = 0; i < m1.Count; i++)
+            {
+                res = res.Replace(m1[i].Value, m2[i].Value);
+            }
+            to.Target = res;
+        }
 
         public async Task<IList<LanguagePackage>> ReadAsync(string file)
         {

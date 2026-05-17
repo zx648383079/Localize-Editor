@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="ZoDream.LocalizeEditor/ZoDream.LocalizeEditor.csproj" />
+  <Project Path="ZoDream.Shared/ZoDream.Shared.csproj" />
+  <Project Path="ZoDream.Tests/ZoDream.Tests.csproj" />
+</Solution>

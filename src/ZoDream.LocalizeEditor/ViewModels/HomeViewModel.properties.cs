@@ -11,6 +11,8 @@ namespace ZoDream.LocalizeEditor.ViewModels
     public partial class HomeViewModel
     {
 
+        private readonly AppViewModel _app = App.ViewModel;
+
         private CancellationTokenSource? TokenSource;
 
         private bool isLoading = false;

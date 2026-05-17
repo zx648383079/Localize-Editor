@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using ZoDream.Shared.Extensions;
 using ZoDream.Shared.Models;
 using ZoDream.Shared.Storage;
 
@@ -11,6 +11,16 @@ namespace ZoDream.Shared.Readers.WordPress
     public class PoReader : IReader
     {
         public const string LanguageTag = "Language";
+
+        public bool IsMatchSource(ITranslateUnit from, ITranslateUnit to)
+        {
+            return from.Source.Trim().Equals(to.Source, StringComparison.Ordinal);
+        }
+
+        public void TranslateTarget(ITranslateUnit from, ITranslateUnit to)
+        {
+            to.Target = from.Target;
+        }
 
         public async Task<IList<LanguagePackage>> ReadAsync(string file)
         {

@@ -62,7 +62,7 @@ namespace ZoDream.LocalizeEditor.ViewModels
                 }
                 return o.Source.Contains(Keywords) || o.Target.Contains(Keywords);
             };
-            LoadAsync(App.ViewModel.CurrentPackage, false);
+            LoadAsync(_app.CurrentPackage, false);
         }
 
 
@@ -107,7 +107,7 @@ namespace ZoDream.LocalizeEditor.ViewModels
         
         public void ChangeLanguage(string lang)
         {
-            var lastLang = App.ViewModel.PackageLanguage;
+            var lastLang = _app.PackageLanguage;
             if (lang == lastLang)
             {
                 return;
@@ -155,7 +155,7 @@ namespace ZoDream.LocalizeEditor.ViewModels
                 var same = GetUnit(items, it, true, true);
                 if (same is not null)
                 {
-                    it.Target = same.Target;
+                    _app.Comparator.TranslateTarget(same, it);
                 }
             }
         }
@@ -165,7 +165,7 @@ namespace ZoDream.LocalizeEditor.ViewModels
         {
             foreach(var item in items)
             {
-                if (item.Source.Trim() != source.Source.Trim())
+                if (_app.Comparator.IsMatchSource(item, source))
                 {
                     continue;
                 }
@@ -199,8 +199,8 @@ namespace ZoDream.LocalizeEditor.ViewModels
 
         public void Load(string lang)
         {
-            App.ViewModel.PackageLanguage = lang;
-            if (lang is null || !App.ViewModel.Packages.TryGetValue(lang, out var package))
+            _app.PackageLanguage = lang;
+            if (lang is null || !_app.Packages.TryGetValue(lang, out var package))
             {
                 for (int i = 0; i < Items.Count; i++)
                 {
@@ -217,15 +217,15 @@ namespace ZoDream.LocalizeEditor.ViewModels
 
         public void Load()
         {
-            App.ViewModel.Packages.Clear();
-            SourceLang = App.ViewModel.LangDictionary.CodeToString("en");
+            _app.Packages.Clear();
+            SourceLang = _app.LangDictionary.CodeToString("en");
             TargetLang = string.Empty;
             Items.Clear();
         }
 
         public async Task LoadAsync(string fileName, bool fillEmpty = false)
         {
-            var package = await App.ViewModel.LoadPackageAsync(fileName);
+            var package = await _app.LoadPackageAsync(fileName);
             if (package == null)
             {
                 return;
@@ -234,21 +234,21 @@ namespace ZoDream.LocalizeEditor.ViewModels
             {
                 package.FileName = fileName;
             }
-            package.Language = App.ViewModel.PackageSourceLanguage;
+            package.Language = _app.PackageSourceLanguage;
             if (string.IsNullOrWhiteSpace(package.TargetLanguage))
             {
                 DialogOpen(lang => {
                     package.TargetLanguage = (string)lang;
                     App.Current.Dispatcher.Invoke(() =>
                     {
-                        App.ViewModel.AddPackage(package);
+                        _app.AddPackage(package);
                         LoadAsync(package, fillEmpty);
                     });
                 });
                 return;
             }
             App.Current.Dispatcher.Invoke(() => {
-                App.ViewModel.AddPackage(package);
+                _app.AddPackage(package);
                 LoadAsync(package, fillEmpty);
             });
         }
@@ -266,22 +266,22 @@ namespace ZoDream.LocalizeEditor.ViewModels
             {
                 return;
             }
-            App.ViewModel.AppendPackage(items);
+            _app.AppendPackage(items);
             var package = items[0];
-            package.Language = App.ViewModel.PackageSourceLanguage;
+            package.Language = _app.PackageSourceLanguage;
             if (string.IsNullOrWhiteSpace(package.TargetLanguage))
             {
                 DialogOpen(lang => {
                     package.TargetLanguage = (string)lang;
                     App.Current.Dispatcher.Invoke(() => {
-                        App.ViewModel.AddPackage(package);
+                        _app.AddPackage(package);
                         LoadAsync(package, fillEmpty);
                     });
                 });
                 return;
             }
             App.Current.Dispatcher.Invoke(() => {
-                App.ViewModel.AddPackage(package);
+                _app.AddPackage(package);
                 LoadAsync(package, fillEmpty);
             });
         }
@@ -294,18 +294,18 @@ namespace ZoDream.LocalizeEditor.ViewModels
             }
             if (string.IsNullOrEmpty(SourceLang) && !string.IsNullOrEmpty(package.Language))
             {
-                SourceLang = App.ViewModel.LangDictionary.CodeToString(package.Language);
+                SourceLang = _app.LangDictionary.CodeToString(package.Language);
             }
             if (!string.IsNullOrEmpty(package.TargetLanguage))
             {
-                TargetLang = App.ViewModel.LangDictionary.CodeToString(package.TargetLanguage);
+                TargetLang = _app.LangDictionary.CodeToString(package.TargetLanguage);
             }
             Merge(package.Items, Items.Count == 0, fillEmpty);
         }
 
         public LanguagePackage ReaderPackage {
             get {
-                var provider = App.ViewModel.LangDictionary;
+                var provider = _app.LangDictionary;
                 var package = new LanguagePackage(
                     provider.RepairCode(SourceLang),
                     provider.RepairCode(TargetLang));
@@ -355,14 +355,14 @@ namespace ZoDream.LocalizeEditor.ViewModels
             SyncToGlobal(TargetLang, Items);
             if (isAll)
             {
-                await reader.WriteAsync(fileName, App.ViewModel.Packages.Values);
+                await reader.WriteAsync(fileName, _app.Packages.Values);
             }
             else
             {
                 await reader.WriteAsync(fileName, ReaderPackage);
             }
 
-            App.ViewModel.DispatcherQueue.Invoke(() => {
+            _app.DispatcherQueue.Invoke(() => {
                 IsLoading = false;
                 MessageBox.Show("保存成功");
             });
@@ -384,7 +384,7 @@ namespace ZoDream.LocalizeEditor.ViewModels
             package.FileName = fileName;
             IsLoading = true;
             await reader.WriteAsync(fileName, package);
-            App.ViewModel.DispatcherQueue.Invoke(() => {
+            _app.DispatcherQueue.Invoke(() => {
                 IsLoading = false;
                 MessageBox.Show("保存成功");
             });
@@ -392,7 +392,7 @@ namespace ZoDream.LocalizeEditor.ViewModels
 
         public async Task SaveAsync()
         {
-            var package = App.ViewModel.CurrentPackage;
+            var package = _app.CurrentPackage;
             if (package is not null && !string.IsNullOrWhiteSpace(package.FileName))
             {
                 await SaveAsync(package.FileName);
@@ -407,10 +407,10 @@ namespace ZoDream.LocalizeEditor.ViewModels
         public void SyncToGlobal(string lang, IEnumerable<UnitViewModel> unitItems)
         {
             LanguagePackage package;
-            var has = App.ViewModel.Packages.ContainsKey(lang);
+            var has = _app.Packages.ContainsKey(lang);
             if (has)
             {
-                package = App.ViewModel.Packages[lang];
+                package = _app.Packages[lang];
                 package.Items.Clear();
             }
             else
@@ -421,7 +421,7 @@ namespace ZoDream.LocalizeEditor.ViewModels
             {
                 package.Items.Add(item.Clone<UnitItem>());
             }
-            App.ViewModel.AddPackage(package);
+            _app.AddPackage(package);
         }
 
         public async Task TranslatePackageAsync(int begin = 0)
@@ -488,7 +488,7 @@ namespace ZoDream.LocalizeEditor.ViewModels
 
         public void ApplyExitAttributes()
         {
-            var package = App.ViewModel.CurrentPackage;
+            var package = _app.CurrentPackage;
             if (package is null)
             {
                 package = new LanguagePackage(SourceLang, TargetLang);
@@ -500,12 +500,12 @@ namespace ZoDream.LocalizeEditor.ViewModels
             {
                 package.Items.Add(item.Clone<UnitItem>());
             }
-            App.ViewModel.AddPackage(package);
+            _app.AddPackage(package);
         }
 
         public void ApplyQueryAttributes(IDictionary<string, object> queries)
         {
-            Load(App.ViewModel.PackageLanguage);
+            Load(_app.PackageLanguage);
         }
     }
 }

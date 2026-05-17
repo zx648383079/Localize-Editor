@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using ZoDream.Shared.Models;
@@ -12,6 +9,15 @@ namespace ZoDream.Shared.Readers.CSharp
 {
     public class ResXReader : IReader
     {
+        public bool IsMatchSource(ITranslateUnit from, ITranslateUnit to)
+        {
+            return from.Source.Trim().Equals(to.Source, StringComparison.Ordinal);
+        }
+
+        public void TranslateTarget(ITranslateUnit from, ITranslateUnit to)
+        {
+            to.Target = from.Target;
+        }
         public async Task<IList<LanguagePackage>> ReadAsync(string file)
         {
             return [await ReadFileAsync(file)];

@@ -8,6 +8,15 @@ namespace ZoDream.Shared.Readers.Godot
 {
     public class CsvReader : IReader
     {
+        public bool IsMatchSource(ITranslateUnit from, ITranslateUnit to)
+        {
+            return from.Source.Trim().Equals(to.Source, StringComparison.Ordinal);
+        }
+
+        public void TranslateTarget(ITranslateUnit from, ITranslateUnit to)
+        {
+            to.Target = from.Target;
+        }
         public Task<IList<LanguagePackage>> ReadAsync(string file)
         {
             return Task.Factory.StartNew(() => {

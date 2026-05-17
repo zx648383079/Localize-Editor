@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using ZoDream.Shared.Models;
@@ -9,6 +10,15 @@ namespace ZoDream.Shared.Readers.Angular
 {
     public class JsonReader : IReader
     {
+        public bool IsMatchSource(ITranslateUnit from, ITranslateUnit to)
+        {
+            return from.Source.Trim().Equals(to.Source, StringComparison.Ordinal);
+        }
+
+        public void TranslateTarget(ITranslateUnit from, ITranslateUnit to)
+        {
+            to.Target = from.Target;
+        }
         public async Task<IList<LanguagePackage>> ReadAsync(string file)
         {
             return [await ReadFileAsync(file)];

@@ -28,8 +28,8 @@ namespace ZoDream.LocalizeEditor.ViewModels
         {
             if (arg is LangePackageViewModel package)
             {
-                App.ViewModel.Packages.Remove(
-                    App.ViewModel.LangDictionary.RepairCode(package.TargetLanguage));
+                _app.Packages.Remove(
+                    _app.LangDictionary.RepairCode(package.TargetLanguage));
                 PanelItems.Remove(package);
             }
         }
@@ -38,7 +38,7 @@ namespace ZoDream.LocalizeEditor.ViewModels
         {
             if (arg is LangePackageViewModel package)
             {
-                var lange = App.ViewModel.LangDictionary.RepairCode(package.TargetLanguage);
+                var lange = _app.LangDictionary.RepairCode(package.TargetLanguage);
                 TargetLang = package.TargetLanguage;
                 Load(lange);
                 PanelVisible = false;
@@ -54,7 +54,7 @@ namespace ZoDream.LocalizeEditor.ViewModels
         {
             DialogOpen(lang => {
                 TargetLang = lang;
-                Load(App.ViewModel.LangDictionary.RepairCode(lang));
+                Load(_app.LangDictionary.RepairCode(lang));
                 PanelRefresh();
             });
         }
@@ -68,11 +68,11 @@ namespace ZoDream.LocalizeEditor.ViewModels
         private void PanelRefresh()
         {
             PanelItems.Clear();
-            foreach (var item in App.ViewModel.Packages)
+            foreach (var item in _app.Packages)
             {
                 PanelItems.Add(new LangePackageViewModel(
-                  App.ViewModel.LangDictionary.CodeToString(item.Value.Language),
-                  App.ViewModel.LangDictionary.CodeToString(item.Value.TargetLanguage)
+                  _app.LangDictionary.CodeToString(item.Value.Language),
+                  _app.LangDictionary.CodeToString(item.Value.TargetLanguage)
                     ));
             }
         }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 using ZoDream.Shared.Models;
 using ZoDream.Shared.Storage;
@@ -10,6 +9,15 @@ namespace ZoDream.Shared.Readers.Subtitle
 {
     public class SrtReader : IReader
     {
+        public bool IsMatchSource(ITranslateUnit from, ITranslateUnit to)
+        {
+            return from.Source.Trim().Equals(to.Source, StringComparison.Ordinal);
+        }
+
+        public void TranslateTarget(ITranslateUnit from, ITranslateUnit to)
+        {
+            to.Target = from.Target;
+        }
         public async Task<IList<LanguagePackage>> ReadAsync(string file)
         {
             return [await ReadFileAsync(file)];
